@@ -177,11 +177,21 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
             ${optimalSplit.total.toFixed(2)}
             <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', color: 'var(--success)', fontWeight: 500 }}>-${optimalSplit.savingsAmount.toFixed(2)} saved</span>
           </div>
+
+          {/* Travel Overhead & Net Savings Badge */}
+          {optimalSplit.stores.length > 1 && (
+            <div style={{ fontSize: '0.85rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '6px 12px', borderRadius: 'var(--radius-md)', color: '#fbbf24', marginTop: 'var(--spacing-xs)', marginBottom: 'var(--spacing-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>🚗 Travel Overhead (-${(optimalSplit.stores.length - 1) * 2.50}):</span>
+              <strong style={{ color: (optimalSplit.savingsAmount - (optimalSplit.stores.length - 1) * 2.50) > 0 ? 'var(--success)' : '#f87171' }}>
+                Net ${Math.max(0, (optimalSplit.savingsAmount - (optimalSplit.stores.length - 1) * 2.50)).toFixed(2)} Value
+              </strong>
+            </div>
+          )}
           
           {/* Optimal item breakdown by store */}
-          <div style={{ marginTop: 'var(--spacing-xl)', borderTop: '1px solid var(--surface-border)', paddingTop: 'var(--spacing-md)' }}>
+          <div style={{ marginTop: 'var(--spacing-md)', borderTop: '1px solid var(--surface-border)', paddingTop: 'var(--spacing-md)' }}>
             <h4 style={{ fontSize: '1rem', marginBottom: 'var(--spacing-sm)' }}>Shopping List Breakdown</h4>
-            {optimalSplit.items.map((item, i) => {
+            {optimalSplit.items.map((item: any, i: number) => {
               const storeStyle = getStoreStyle(item.store);
               const image = basket.find(b => (b.size ? `${b.product.name} (Size: ${b.size})` : b.product.name) === item.name)?.product.image;
               return (
@@ -189,7 +199,14 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', flex: 1, minWidth: 0 }}>
                     <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>{storeStyle.logo}</span>
                     <Thumbnail name={item.name} image={image} size={28} />
-                    <span style={{ display: 'block', color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{item.quantity}x {item.name}</span>
+                    <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{item.quantity}x {item.name}</span>
+                      {item.unitPriceNormalized && (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                          ${item.unitPriceNormalized.toFixed(2)}/{item.unitType || 'unit'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0, marginLeft: '8px' }}>
                     <span style={{ color: 'var(--success)', fontWeight: 600, fontSize: '0.9rem' }}>${item.lineTotal.toFixed(2)}</span>

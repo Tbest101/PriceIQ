@@ -161,7 +161,30 @@ app.post('/api/optimize', async (req, res) => {
     let optimalTotal = 0;
     const optimalBreakdown = [];
     const optimalStores = new Set();
-    const optimalItemMap = {}; // store the cheapest variant for fallbacks
+    const optimalItemMap = {};
+
+    // Helper: Parse unit volume/weight/count from title (e.g. 20 oz, 2 lb, 1 gal, 12 ct)
+    const parseUnitQuantity = (title) => {
+      if (!title) return { normalizedPrice: null, unitType: null };
+      const lower = title.toLowerCase();
+      // Match patterns like "20 oz", "2 lb", "1 gal", "12 ct", "500 ml"
+      const ozMatch = lower.match(/(\d+(?:\.\d+)?)\s*(?:oz|ounce|ounces)/);
+      if (ozMatch) {
+        const qty = parseFloat(ozMatch[1]);
+        if (qty > 0) return { qty, unitType: 'oz' };
+      }
+      const lbMatch = lower.match(/(\d+(?:\.\d+)?)\s*(?:lb|lbs|pound|pounds)/);
+      if (lbMatch) {
+        const qty = parseFloat(lbMatch[1]);
+        if (qty > 0) return { qty: qty * 16, unitType: 'oz' }; // normalize lbs to oz
+      }
+      const ctMatch = lower.match(/(\d+)\s*(?:ct|count|pack|pk)/);
+      if (ctMatch) {
+        const qty = parseInt(ctMatch[1], 10);
+        if (qty > 0) return { qty, unitType: 'ct' };
+      }
+      return { qty: 1, unitType: 'unit' };
+    };
 
     for (const { itemName, quantity, results } of allResults) {
       if (results.length === 0) continue;
@@ -169,6 +192,9 @@ app.post('/api/optimize', async (req, res) => {
       optimalTotal += cheapest.extracted_price * quantity;
       optimalStores.add(cheapest.source);
       
+      const parsedUnit = parseUnitQuantity(cheapest.title);
+      const normalizedPrice = Math.round((cheapest.extracted_price / parsedUnit.qty) * 100) / 100;
+
       const optItem = {
         name: itemName,
         quantity,
@@ -176,6 +202,8 @@ app.post('/api/optimize', async (req, res) => {
         unitPrice: cheapest.extracted_price,
         lineTotal: cheapest.extracted_price * quantity,
         title: cheapest.title,
+        unitPriceNormalized: normalizedPrice,
+        unitType: parsedUnit.unitType,
       };
       
       optimalBreakdown.push(optItem);
@@ -186,18 +214,11 @@ app.post('/api/optimize', async (req, res) => {
     const fallbackItemMap = {};
     for (const { itemName, quantity, results } of allResults) {
       if (results.length === 0) continue;
-      
       const sum = results.reduce((acc, r) => acc + r.extracted_price, 0);
       let avgPrice = sum / results.length;
-      
       const prices = results.map(r => r.extracted_price);
       const minPrice = Math.min(...prices);
-      
-      // If the average happens to be exactly the cheapest price (e.g. only 1 result),
-      // add a small realistic 5% premium to prevent identical totals.
-      if (avgPrice <= minPrice) {
-        avgPrice = minPrice * 1.05;
-      }
+      if (avgPrice <= minPrice) avgPrice = minPrice * 1.05;
 
       fallbackItemMap[itemName] = {
         name: itemName,
@@ -237,18 +258,22 @@ app.post('/api/optimize', async (req, res) => {
       }
     }
 
-    // 3. Select the best single store using the synthetic coverage totals
     if (!baseline) {
       retailers.sort((a, b) => a.syntheticTotal - b.syntheticTotal);
       baseline = retailers[0];
     }
 
-    const savingsAmount = baseline.syntheticTotal - optimalTotal;
-    const savingsPercent = baseline.syntheticTotal > 0 ? Math.round((savingsAmount / baseline.syntheticTotal) * 100) : 0;
-    const roundSavingsAmount = Math.round(savingsAmount * 100) / 100;
+    const grossSavingsAmount = baseline.syntheticTotal - optimalTotal;
+    const savingsPercent = baseline.syntheticTotal > 0 ? Math.round((grossSavingsAmount / baseline.syntheticTotal) * 100) : 0;
+    const roundSavingsAmount = Math.round(grossSavingsAmount * 100) / 100;
     const storesCount = optimalStores.size;
 
-    // Classify result type
+    // Travel friction overhead penalty ($2.50 per additional store stop beyond the 1st)
+    const extraStoresCount = Math.max(0, storesCount - 1);
+    const travelFrictionDeduction = extraStoresCount * 2.50;
+    const netSavings = Math.round((roundSavingsAmount - travelFrictionDeduction) * 100) / 100;
+
+    // Classify result type considering travel overhead net savings
     let resultType = 'IMPROVED';
     let isWorthwhile = true;
 
@@ -258,12 +283,11 @@ app.post('/api/optimize', async (req, res) => {
     } else if (storesCount <= 1) {
       resultType = 'SINGLE_STORE_OPTIMAL';
       isWorthwhile = false;
-    } else if (roundSavingsAmount < 1.50) {
+    } else if (netSavings <= 0 || roundSavingsAmount < 1.50) {
       resultType = 'NOT_WORTHWHILE_MINIMAL';
       isWorthwhile = false;
     }
 
-    // Attempt to infer categories from item names
     const inferCategory = (name) => {
       const n = name.toLowerCase();
       if (n.includes('banana') || n.includes('apple') || n.includes('produce') || n.includes('fruit')) return 'Produce';
@@ -276,7 +300,7 @@ app.post('/api/optimize', async (req, res) => {
 
     const categories = Array.from(new Set(items.map(i => inferCategory(i.name))));
 
-    // Fire & forget metric logging
+    // Log optimization metrics
     logOptimizationMetric({
       location: loc,
       itemCount: items.length,
@@ -306,6 +330,8 @@ app.post('/api/optimize', async (req, res) => {
         items: optimalBreakdown,
         savingsAmount: roundSavingsAmount,
         savingsPercent,
+        netSavings,
+        travelFrictionDeduction,
         isWorthwhile,
         resultType,
       },

@@ -26,3 +26,26 @@ export interface RetailerPrice {
   price: number;
   inStock: boolean;
 }
+
+export interface OptimizedItem {
+  name: string;
+  quantity: number;
+  store: string;
+  unitPrice: number;
+  lineTotal: number;
+  title: string;
+  unitPriceNormalized?: number;
+  unitType?: string;
+}
+
+export interface OptimalSplitResult {
+  stores: string[];
+  total: number;
+  items: OptimizedItem[];
+  savingsAmount: number;
+  savingsPercent: number;
+  netSavings?: number;
+  travelFrictionDeduction?: number;
+  isWorthwhile?: boolean;
+  resultType?: string;
+}

@@ -177,6 +177,34 @@ export const RouteConfirmation: React.FC<Props> = ({ optimalSplit, onBack, onPla
                     </div>
                   ))}
                 </div>
+
+                {/* 1-Click Cart / Search Export */}
+                <div style={{ marginTop: 'var(--spacing-sm)', paddingTop: 'var(--spacing-xs)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'flex-end' }}>
+                  <a
+                    href={
+                      store.name.toLowerCase().includes('walmart')
+                        ? `https://www.walmart.com/search?q=${encodeURIComponent(store.items[0]?.name || store.name)}`
+                        : store.name.toLowerCase().includes('target')
+                        ? `https://www.target.com/s?searchTerm=${encodeURIComponent(store.items[0]?.name || store.name)}`
+                        : store.name.toLowerCase().includes('whole foods') || store.name.toLowerCase().includes('amazon')
+                        ? `https://www.amazon.com/s?k=${encodeURIComponent(store.items[0]?.name || store.name)}`
+                        : `https://www.google.com/search?q=${encodeURIComponent(store.name + ' ' + (store.items[0]?.name || ''))}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: '0.8rem',
+                      color: 'var(--primary)',
+                      textDecoration: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontWeight: 500
+                    }}
+                  >
+                    🛍️ Open Items in {store.name} Cart &rarr;
+                  </a>
+                </div>
               </div>
             ))}
           </div>
