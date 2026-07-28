@@ -176,8 +176,8 @@ export async function getAnalyticsSummary() {
       improvedPercentage: 0,
       notWorthwhileCount: 0,
       notWorthwhilePercentage: 0,
-      geographicDifferences: {},
-      categoryDifferences: {},
+      geographicDifferences: [],
+      categoryDifferences: [],
       badResults: [],
       records: []
     };

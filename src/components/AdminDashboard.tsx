@@ -324,64 +324,82 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
       )}
 
       {/* GEOGRAPHIC TAB */}
-      {activeTab === 'geo' && (
-        <div className="glass-panel" style={{ padding: 'var(--spacing-xl)' }}>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>📍 Geographic Differences</h3>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--surface-border)', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '8px' }}>Location</th>
-                  <th style={{ padding: '8px' }}>Evaluated Baskets</th>
-                  <th style={{ padding: '8px' }}>Average Savings ($)</th>
-                  <th style={{ padding: '8px' }}>Median Savings ($)</th>
-                  <th style={{ padding: '8px' }}>Worthwhile Multi-Store Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.geographicDifferences.map((g, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '12px 8px', fontWeight: 600 }}>{g.location}</td>
-                    <td style={{ padding: '12px 8px' }}>{g.basketCount}</td>
-                    <td style={{ padding: '12px 8px', color: 'var(--success)', fontWeight: 600 }}>${g.averageSavings.toFixed(2)}</td>
-                    <td style={{ padding: '12px 8px', color: 'var(--primary)', fontWeight: 600 }}>${g.medianSavings.toFixed(2)}</td>
-                    <td style={{ padding: '12px 8px' }}>{g.improvedRate}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {activeTab === 'geo' && (() => {
+        const geoList = Array.isArray(data?.geographicDifferences) ? data.geographicDifferences : [];
+        return (
+          <div className="glass-panel" style={{ padding: 'var(--spacing-xl)' }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>📍 Geographic Differences</h3>
+            {geoList.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', padding: 'var(--spacing-md)', textAlign: 'center' }}>
+                No geographic differences logged yet. Run a benchmark test to generate geographic metrics!
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--surface-border)', color: 'var(--text-muted)' }}>
+                      <th style={{ padding: '8px' }}>Location</th>
+                      <th style={{ padding: '8px' }}>Evaluated Baskets</th>
+                      <th style={{ padding: '8px' }}>Average Savings ($)</th>
+                      <th style={{ padding: '8px' }}>Median Savings ($)</th>
+                      <th style={{ padding: '8px' }}>Worthwhile Multi-Store Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {geoList.map((g, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '12px 8px', fontWeight: 600 }}>{g.location || 'Unknown'}</td>
+                        <td style={{ padding: '12px 8px' }}>{g.basketCount || 0}</td>
+                        <td style={{ padding: '12px 8px', color: 'var(--success)', fontWeight: 600 }}>${(Number(g.averageSavings) || 0).toFixed(2)}</td>
+                        <td style={{ padding: '12px 8px', color: 'var(--primary)', fontWeight: 600 }}>${(Number(g.medianSavings) || 0).toFixed(2)}</td>
+                        <td style={{ padding: '12px 8px' }}>{g.improvedRate || 0}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* CATEGORY TAB */}
-      {activeTab === 'categories' && (
-        <div className="glass-panel" style={{ padding: 'var(--spacing-xl)' }}>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>🏷️ Grocery Category Differences</h3>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--surface-border)', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '8px' }}>Category</th>
-                  <th style={{ padding: '8px' }}>Baskets Containing Category</th>
-                  <th style={{ padding: '8px' }}>Average Savings ($)</th>
-                  <th style={{ padding: '8px' }}>Median Savings ($)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.categoryDifferences.map((c, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '12px 8px', fontWeight: 600 }}>{c.category}</td>
-                    <td style={{ padding: '12px 8px' }}>{c.basketCount}</td>
-                    <td style={{ padding: '12px 8px', color: 'var(--success)', fontWeight: 600 }}>${c.averageSavings.toFixed(2)}</td>
-                    <td style={{ padding: '12px 8px', color: 'var(--primary)', fontWeight: 600 }}>${c.medianSavings.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {activeTab === 'categories' && (() => {
+        const catList = Array.isArray(data?.categoryDifferences) ? data.categoryDifferences : [];
+        return (
+          <div className="glass-panel" style={{ padding: 'var(--spacing-xl)' }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>🏷️ Grocery Category Differences</h3>
+            {catList.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', padding: 'var(--spacing-md)', textAlign: 'center' }}>
+                No category differences logged yet. Run a benchmark test to generate category metrics!
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--surface-border)', color: 'var(--text-muted)' }}>
+                      <th style={{ padding: '8px' }}>Category</th>
+                      <th style={{ padding: '8px' }}>Baskets Containing Category</th>
+                      <th style={{ padding: '8px' }}>Average Savings ($)</th>
+                      <th style={{ padding: '8px' }}>Median Savings ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {catList.map((c, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '12px 8px', fontWeight: 600 }}>{c.category || 'General'}</td>
+                        <td style={{ padding: '12px 8px' }}>{c.basketCount || 0}</td>
+                        <td style={{ padding: '12px 8px', color: 'var(--success)', fontWeight: 600 }}>${(Number(c.averageSavings) || 0).toFixed(2)}</td>
+                        <td style={{ padding: '12px 8px', color: 'var(--primary)', fontWeight: 600 }}>${(Number(c.medianSavings) || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
