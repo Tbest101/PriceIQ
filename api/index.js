@@ -364,7 +364,7 @@ app.get('/api/health', (req, res) => {
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
-    console.log(`\n🚀 Less4More API server running at http://localhost:${PORT}`);
+    console.log(`\n🚀 PriceIQ API server running at http://localhost:${PORT}`);
     console.log(`   SerpApi key: ${process.env.SERPAPI_KEY ? '✅ Configured' : '⚠️  Not set (using mock data)'}`);
     console.log(`   Endpoints:`);
     console.log(`     GET  /api/health`);

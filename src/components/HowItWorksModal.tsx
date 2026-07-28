@@ -35,7 +35,7 @@ export const HowItWorksModal: React.FC<Props> = ({ onClose }) => {
         >&times;</button>
 
         <h2 style={{ fontSize: '1.8rem', marginBottom: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--text-main)' }}>
-          How <span className="text-gradient">Less4More</span> Works
+          How <span className="text-gradient">PriceIQ</span> Works
         </h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>

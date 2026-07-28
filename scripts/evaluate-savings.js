@@ -196,7 +196,7 @@ function runLocalOptimization(items, plannedStore) {
 
 async function runEvaluation() {
   console.log('\n======================================================');
-  console.log('📊 LESS4MORE BENCHMARK & SAVINGS EVALUATION SUITE');
+  console.log('📊 PRICEIQ BENCHMARK & SAVINGS EVALUATION SUITE');
   console.log('======================================================\n');
 
   console.log(`Running benchmark evaluation across ${TEST_SUITE.length} sample baskets...\n`);

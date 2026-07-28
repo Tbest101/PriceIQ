@@ -21,7 +21,7 @@ function App() {
 
   // Restore session on mount
   useEffect(() => {
-    const session = localStorage.getItem('l4m_session');
+    const session = localStorage.getItem('priceiq_session');
     if (session) {
       try {
         setUser(JSON.parse(session));
@@ -42,7 +42,7 @@ function App() {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('l4m_session');
+    localStorage.removeItem('priceiq_session');
     setUser(null);
     setBasket([]);
   };
@@ -51,7 +51,7 @@ function App() {
     <div className="app-container animate-fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header className="app-header" onClick={() => setView('home')}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.02em', cursor: 'pointer' }}>
-          Less<span className="text-gradient">4</span>More
+          Price<span className="text-gradient">IQ</span>
         </h1>
         <nav className="app-nav">
           <button className="nav-text" onClick={(e) => { e.stopPropagation(); setView('home'); }} style={{ color: view === 'home' ? 'var(--primary)' : 'var(--text-main)', fontWeight: 500 }}>Home</button>

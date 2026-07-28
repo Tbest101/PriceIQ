@@ -74,7 +74,7 @@ export const RouteConfirmation: React.FC<Props> = ({ optimalSplit, onBack, onPla
         <p style={{ color: 'var(--text-muted)', textAlign: 'center', maxWidth: '400px' }}>
           {fulfillmentMethod === 'pickup' 
             ? `Your pickup route has been finalized. We've sent the orders to the ${groupedStores.length} stores. They will notify you when ready.` 
-            : `Your orders have been placed! Less4More couriers will pick them up from the ${groupedStores.length} stores and deliver them soon.`}
+            : `Your orders have been placed! PriceIQ couriers will pick them up from the ${groupedStores.length} stores and deliver them soon.`}
         </p>
         <button 
           onClick={() => window.location.reload()} 
