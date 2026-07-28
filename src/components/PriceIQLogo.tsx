@@ -82,8 +82,14 @@ export const PriceIQLogo: React.FC<Props> = ({
             fill="url(#priceiq-fintech-p-gradient)"
           />
 
+          {/* Downward Arrow Cutout inside vertical stem symbolizing price drops & savings */}
+          <path
+            d="M 28 94 L 20 80 H 24 V 68 H 32 V 80 H 36 Z"
+            fill="#051418"
+          />
+
           {/* Precision Analytics Spark Cutout */}
-          <circle cx="60" cy="40" r="6" fill="#07191e" />
+          <circle cx="60" cy="40" r="6" fill="#051418" />
         </svg>
       </div>
 
