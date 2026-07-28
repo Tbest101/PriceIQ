@@ -59,6 +59,7 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeMode, setActiveMode] = useState<'single' | 'balanced' | 'max_savings'>('balanced');
 
   useEffect(() => {
     const optimize = async () => {
@@ -110,15 +111,6 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
 
   const { baselineStore, optimalSplit } = result;
   const singleStyle = getStoreStyle(baselineStore.name);
-
-  return (
-    <div className="optimization-layout animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-sm)' }}>
-        <button onClick={onBack} style={{ color: 'var(--text-muted)' }}>&larr; Back to Basket</button>
-        <span style={{ fontSize: '0.75rem', padding: '2px 10px', borderRadius: 'var(--radius-full)', background: result.source === 'serpapi' ? 'rgba(16,185,129,0.15)' : 'rgba(139,92,246,0.15)', color: result.source === 'serpapi' ? 'var(--success)' : 'var(--primary)' }}>
-          {result.source === 'serpapi' ? '🌐 Live Prices' : '📦 Demo Data'}
-  const [activeMode, setActiveMode] = useState<'single' | 'balanced' | 'max_savings'>('balanced');
-
   const modes = (result?.optimalSplit as any)?.modes;
   const currentPlan = modes ? modes[activeMode === 'single' ? 'single' : activeMode === 'balanced' ? 'balanced' : 'maxSavings'] : null;
 
