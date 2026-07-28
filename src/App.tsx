@@ -7,8 +7,19 @@ import { AuthModal } from './components/AuthModal';
 import { HowItWorksModal } from './components/HowItWorksModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PriceIQLogo } from './components/PriceIQLogo';
+import { ReceiptScannerModal } from './components/ReceiptScannerModal';
 import type { UserProfile } from './components/AuthModal';
 import type { BasketItem } from './types';
+
+const DEFAULT_REPEAT_BASKET: BasketItem[] = [
+  { product: { id: 'p1', name: 'Whole Milk 1 Gallon', category: 'Dairy', defaultPrice: 3.49, barcode: '011110416001' }, quantity: 2 },
+  { product: { id: 'p2', name: 'Large Grade A Brown Eggs 12ct', category: 'Dairy & Eggs', defaultPrice: 3.89, barcode: '011110416002' }, quantity: 1 },
+  { product: { id: 'p3', name: 'Honey Nut Cheerios Cereal 15.4oz', category: 'Pantry', defaultPrice: 4.69, barcode: '011110416003' }, quantity: 1 },
+  { product: { id: 'p4', name: 'Organic Bananas 3lb', category: 'Produce', defaultPrice: 2.19, barcode: '011110416004' }, quantity: 1 },
+  { product: { id: 'p5', name: 'Artisan Sourdough Bread 24oz', category: 'Bakery', defaultPrice: 4.29, barcode: '011110416005' }, quantity: 1 },
+  { product: { id: 'p6', name: 'Avocado Bag 4ct', category: 'Produce', defaultPrice: 3.99, barcode: '011110416006' }, quantity: 1 },
+  { product: { id: 'p7', name: 'Tide Liquid Laundry Detergent 92oz', category: 'Household', defaultPrice: 12.99, barcode: '011110416007' }, quantity: 1 }
+];
 
 function App() {
   const [view, setView] = useState<'home' | 'basket' | 'optimization' | 'checkout' | 'admin'>('home');
@@ -19,6 +30,7 @@ function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   // Restore session on mount
   useEffect(() => {
@@ -34,7 +46,31 @@ function App() {
     setBasket(items);
     setLocation(loc);
     setPlannedStore(store);
+    localStorage.setItem('priceiq_last_basket', JSON.stringify(items));
     setView('optimization');
+  };
+
+  const handleReceiptScanned = (scannedItems: BasketItem[]) => {
+    setBasket(scannedItems);
+    localStorage.setItem('priceiq_last_basket', JSON.stringify(scannedItems));
+    setView('basket');
+  };
+
+  const handleRepeatLastBasket = () => {
+    const saved = localStorage.getItem('priceiq_last_basket');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setBasket(parsed);
+          setView('basket');
+          return;
+        }
+      } catch { /* fallback */ }
+    }
+    setBasket(DEFAULT_REPEAT_BASKET);
+    localStorage.setItem('priceiq_last_basket', JSON.stringify(DEFAULT_REPEAT_BASKET));
+    setView('basket');
   };
 
   const handleAuth = (profile: UserProfile) => {
@@ -132,7 +168,7 @@ function App() {
               </div>
               <div 
                 className="glass-panel" 
-                onClick={() => setView('basket')}
+                onClick={() => setShowReceiptModal(true)}
                 style={{ padding: '12px 20px', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
                 onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
                 onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
@@ -142,7 +178,7 @@ function App() {
               </div>
               <div 
                 className="glass-panel" 
-                onClick={() => setView('basket')}
+                onClick={handleRepeatLastBasket}
                 style={{ padding: '12px 20px', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
                 onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
                 onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
@@ -165,7 +201,7 @@ function App() {
                 </div>
                 <button 
                   className="btn-3d"
-                  onClick={() => setView('basket')}
+                  onClick={handleRepeatLastBasket}
                   style={{ padding: '8px 20px', fontSize: '0.9rem' }}>
                   Optimize &amp; Save →
                 </button>
@@ -225,6 +261,11 @@ function App() {
       {showHowItWorks && (
         <HowItWorksModal onClose={() => setShowHowItWorks(false)} />
       )}
+      <ReceiptScannerModal
+        isOpen={showReceiptModal}
+        onClose={() => setShowReceiptModal(false)}
+        onReceiptScanned={handleReceiptScanned}
+      />
     </div>
   );
 }
