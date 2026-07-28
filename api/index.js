@@ -378,7 +378,7 @@ app.post('/api/optimize', async (req, res) => {
       total: Math.round(optimalTotal * 100) / 100,
       savingsAmount: roundSavingsAmount,
       stops: storesCount,
-      extraMiles: extraStoresCount * 2.8,
+      extraMiles: Number((extraStoresCount * 2.8).toFixed(1)),
       extraMinutes: extraStoresCount * 7,
       items: optimalBreakdown,
     };

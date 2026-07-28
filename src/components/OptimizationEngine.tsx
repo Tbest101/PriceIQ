@@ -214,7 +214,7 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
 
           {/* Friction Overhead Details */}
           <div style={{ fontSize: '0.88rem', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '8px 14px', borderRadius: 'var(--radius-md)', color: 'var(--text-main)', marginBottom: 'var(--spacing-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <span>🚗 <strong>{currentPlan?.stops || optimalSplit.stores.length} Stop{(currentPlan?.stops || optimalSplit.stores.length) > 1 ? 's' : ''}</strong> • {currentPlan?.extraMiles || 3.1} miles • ~{currentPlan?.extraMinutes || 9} mins travel</span>
+            <span>🚗 <strong>{currentPlan?.stops || optimalSplit.stores.length} Stop{(currentPlan?.stops || optimalSplit.stores.length) > 1 ? 's' : ''}</strong> • {(currentPlan?.extraMiles ?? 3.1).toFixed(1)} miles • ~{currentPlan?.extraMinutes || 9} mins travel</span>
             <strong style={{ color: 'var(--primary)' }}>Net ${(currentPlan?.savingsAmount || optimalSplit.savingsAmount).toFixed(2)} Savings</strong>
           </div>
           
