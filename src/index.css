@@ -2,23 +2,23 @@
 
 :root {
   /* Colors */
-  --bg-color: #050505;
+  --bg-color: #0b1120;
   --surface-color: rgba(255, 255, 255, 0.04);
   --surface-hover: rgba(255, 255, 255, 0.08);
   --surface-border: rgba(255, 255, 255, 0.1);
   
-  --primary: #8b5cf6;
-  --primary-hover: #7c3aed;
-  --secondary: #3b82f6;
-  --accent: #f43f5e;
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --secondary: #0ea5e9;
+  --accent: #34d399;
   --success: #10b981;
   
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   
   /* Gradients */
-  --gradient-brand: linear-gradient(135deg, var(--primary), var(--secondary));
-  --gradient-glow: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(59, 130, 246, 0.5));
+  --gradient-brand: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(14, 165, 233, 0.5));
 
   /* Typography */
   --font-heading: 'Outfit', sans-serif;

@@ -6,6 +6,7 @@ import { RouteConfirmation } from './components/RouteConfirmation';
 import { AuthModal } from './components/AuthModal';
 import { HowItWorksModal } from './components/HowItWorksModal';
 import { AdminDashboard } from './components/AdminDashboard';
+import { PriceIQLogo } from './components/PriceIQLogo';
 import type { UserProfile } from './components/AuthModal';
 import type { BasketItem } from './types';
 
@@ -49,10 +50,8 @@ function App() {
 
   return (
     <div className="app-container animate-fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header className="app-header" onClick={() => setView('home')}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.02em', cursor: 'pointer' }}>
-          Price<span className="text-gradient">IQ</span>
-        </h1>
+      <header className="app-header" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
+        <PriceIQLogo size={32} showTagline={false} showText={true} />
         <nav className="app-nav">
           <button className="nav-text" onClick={(e) => { e.stopPropagation(); setView('home'); }} style={{ color: view === 'home' ? 'var(--primary)' : 'var(--text-main)', fontWeight: 500 }}>Home</button>
           <button className="nav-text" onClick={(e) => { e.stopPropagation(); setView('basket'); }} style={{ color: view === 'basket' ? 'var(--primary)' : 'var(--text-muted)', transition: 'color var(--transition-fast)' }}>Baskets</button>
@@ -84,8 +83,8 @@ function App() {
         
         {view === 'home' && (
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 'var(--spacing-xl)' }}>
-            <div className="animate-float" style={{ padding: 'var(--spacing-xs) var(--spacing-md)', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: 'var(--radius-full)', color: 'var(--primary)', fontWeight: 500, fontSize: '0.9rem', marginBottom: 'calc(var(--spacing-md) * -1)' }}>
-              ✨ The intelligent shopping platform
+            <div className="animate-float" style={{ padding: 'var(--spacing-xs) var(--spacing-md)', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-full)', color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 'calc(var(--spacing-md) * -1)' }}>
+              ✨ SMARTER PRICES. BETTER CHOICES.
             </div>
             
             <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', padding: '0 var(--spacing-sm)' }}>
