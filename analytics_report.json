@@ -1,0 +1,374 @@
+{
+  "totalBaskets": 8,
+  "averageSavingsAmount": 3.48,
+  "medianSavingsAmount": 0.41,
+  "averageSavingsPercent": 12,
+  "medianSavingsPercent": 5,
+  "rangeSavingsAmount": {
+    "min": 0,
+    "max": 16.89
+  },
+  "rangeSavingsPercent": {
+    "min": 0,
+    "max": 35
+  },
+  "improvedCount": 0,
+  "improvedPercentage": 0,
+  "notWorthwhileCount": 8,
+  "notWorthwhilePercentage": 100,
+  "geographicDifferences": [
+    {
+      "location": "Atlanta, GA",
+      "basketCount": 1,
+      "averageSavings": 0,
+      "medianSavings": 0,
+      "improvedRate": 0
+    },
+    {
+      "location": "Austin, Texas",
+      "basketCount": 2,
+      "averageSavings": 0,
+      "medianSavings": 0,
+      "improvedRate": 0
+    },
+    {
+      "location": "Dallas, TX",
+      "basketCount": 1,
+      "averageSavings": 7.61,
+      "medianSavings": 7.61,
+      "improvedRate": 0
+    },
+    {
+      "location": "Denver, CO",
+      "basketCount": 1,
+      "averageSavings": 0,
+      "medianSavings": 0,
+      "improvedRate": 0
+    },
+    {
+      "location": "Seattle, WA",
+      "basketCount": 1,
+      "averageSavings": 16.89,
+      "medianSavings": 16.89,
+      "improvedRate": 0
+    },
+    {
+      "location": "Chicago, IL",
+      "basketCount": 1,
+      "averageSavings": 0.81,
+      "medianSavings": 0.81,
+      "improvedRate": 0
+    },
+    {
+      "location": "New York, NY",
+      "basketCount": 1,
+      "averageSavings": 2.49,
+      "medianSavings": 2.49,
+      "improvedRate": 0
+    }
+  ],
+  "categoryDifferences": [
+    {
+      "category": "Produce",
+      "basketCount": 5,
+      "averageSavings": 4.04,
+      "medianSavings": 0.81
+    },
+    {
+      "category": "Beverages",
+      "basketCount": 3,
+      "averageSavings": 6.46,
+      "medianSavings": 2.49
+    },
+    {
+      "category": "Meat & Eggs",
+      "basketCount": 6,
+      "averageSavings": 4.08,
+      "medianSavings": 0
+    },
+    {
+      "category": "Dairy",
+      "basketCount": 3,
+      "averageSavings": 0.83,
+      "medianSavings": 0
+    },
+    {
+      "category": "Bakery",
+      "basketCount": 4,
+      "averageSavings": 6.13,
+      "medianSavings": 3.81
+    },
+    {
+      "category": "Pantry",
+      "basketCount": 1,
+      "averageSavings": 7.61,
+      "medianSavings": 7.61
+    }
+  ],
+  "badResults": [
+    {
+      "id": "opt_1785200838302_uvfqyv",
+      "timestamp": "2026-07-28T01:07:18.302Z",
+      "location": "Atlanta, GA",
+      "baselineStore": "Kroger",
+      "itemCount": 3,
+      "baselineTotal": 15.06,
+      "optimalTotal": 15.06,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "resultType": "ZERO_SAVINGS",
+      "reason": "Identical price across retailers"
+    },
+    {
+      "id": "opt_1785200838302_6fyx4q",
+      "timestamp": "2026-07-28T01:07:18.302Z",
+      "location": "Austin, Texas",
+      "baselineStore": "Walmart",
+      "itemCount": 3,
+      "baselineTotal": 19.98,
+      "optimalTotal": 19.98,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "resultType": "ZERO_SAVINGS",
+      "reason": "Identical price across retailers"
+    },
+    {
+      "id": "opt_1785200838301_a59zgi",
+      "timestamp": "2026-07-28T01:07:18.301Z",
+      "location": "Dallas, TX",
+      "baselineStore": "Target",
+      "itemCount": 3,
+      "baselineTotal": 40.5,
+      "optimalTotal": 32.89,
+      "savingsAmount": 7.61,
+      "savingsPercent": 19,
+      "storesCount": 1,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "reason": "Single store was already lowest overall"
+    },
+    {
+      "id": "opt_1785200838301_4ksfnx",
+      "timestamp": "2026-07-28T01:07:18.301Z",
+      "location": "Denver, CO",
+      "baselineStore": "Walmart",
+      "itemCount": 1,
+      "baselineTotal": 3.12,
+      "optimalTotal": 3.12,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "resultType": "ZERO_SAVINGS",
+      "reason": "Identical price across retailers"
+    },
+    {
+      "id": "opt_1785200838300_yjc5si",
+      "timestamp": "2026-07-28T01:07:18.300Z",
+      "location": "Seattle, WA",
+      "baselineStore": "Whole Foods",
+      "itemCount": 4,
+      "baselineTotal": 52.81,
+      "optimalTotal": 35.92,
+      "savingsAmount": 16.89,
+      "savingsPercent": 32,
+      "storesCount": 1,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "reason": "Single store was already lowest overall"
+    },
+    {
+      "id": "opt_1785200838299_87dkhv",
+      "timestamp": "2026-07-28T01:07:18.299Z",
+      "location": "Chicago, IL",
+      "baselineStore": "Whole Foods",
+      "itemCount": 1,
+      "baselineTotal": 2.29,
+      "optimalTotal": 1.48,
+      "savingsAmount": 0.81,
+      "savingsPercent": 35,
+      "storesCount": 1,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "reason": "Single store was already lowest overall"
+    },
+    {
+      "id": "opt_1785200838298_33hkeq",
+      "timestamp": "2026-07-28T01:07:18.298Z",
+      "location": "New York, NY",
+      "baselineStore": "Target",
+      "itemCount": 3,
+      "baselineTotal": 25.16,
+      "optimalTotal": 22.67,
+      "savingsAmount": 2.49,
+      "savingsPercent": 10,
+      "storesCount": 1,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "reason": "Single store was already lowest overall"
+    },
+    {
+      "id": "opt_1785200838290_i9a6tw",
+      "timestamp": "2026-07-28T01:07:18.290Z",
+      "location": "Austin, Texas",
+      "baselineStore": "Walmart",
+      "itemCount": 4,
+      "baselineTotal": 16.07,
+      "optimalTotal": 16.07,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "resultType": "ZERO_SAVINGS",
+      "reason": "Identical price across retailers"
+    }
+  ],
+  "records": [
+    {
+      "id": "opt_1785200838302_uvfqyv",
+      "timestamp": "2026-07-28T01:07:18.302Z",
+      "location": "Atlanta, GA",
+      "itemCount": 3,
+      "baselineStore": "Kroger",
+      "baselineTotal": 15.06,
+      "optimalTotal": 15.06,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "ZERO_SAVINGS",
+      "categories": [
+        "Produce",
+        "Beverages",
+        "Meat & Eggs"
+      ]
+    },
+    {
+      "id": "opt_1785200838302_6fyx4q",
+      "timestamp": "2026-07-28T01:07:18.302Z",
+      "location": "Austin, Texas",
+      "itemCount": 3,
+      "baselineStore": "Walmart",
+      "baselineTotal": 19.98,
+      "optimalTotal": 19.98,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "ZERO_SAVINGS",
+      "categories": [
+        "Dairy",
+        "Meat & Eggs",
+        "Bakery"
+      ]
+    },
+    {
+      "id": "opt_1785200838301_a59zgi",
+      "timestamp": "2026-07-28T01:07:18.301Z",
+      "location": "Dallas, TX",
+      "itemCount": 3,
+      "baselineStore": "Target",
+      "baselineTotal": 40.5,
+      "optimalTotal": 32.89,
+      "savingsAmount": 7.61,
+      "savingsPercent": 19,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "categories": [
+        "Pantry",
+        "Bakery",
+        "Meat & Eggs"
+      ]
+    },
+    {
+      "id": "opt_1785200838301_4ksfnx",
+      "timestamp": "2026-07-28T01:07:18.301Z",
+      "location": "Denver, CO",
+      "itemCount": 1,
+      "baselineStore": "Walmart",
+      "baselineTotal": 3.12,
+      "optimalTotal": 3.12,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "ZERO_SAVINGS",
+      "categories": [
+        "Meat & Eggs"
+      ]
+    },
+    {
+      "id": "opt_1785200838300_yjc5si",
+      "timestamp": "2026-07-28T01:07:18.300Z",
+      "location": "Seattle, WA",
+      "itemCount": 4,
+      "baselineStore": "Whole Foods",
+      "baselineTotal": 52.81,
+      "optimalTotal": 35.92,
+      "savingsAmount": 16.89,
+      "savingsPercent": 32,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "categories": [
+        "Produce",
+        "Meat & Eggs",
+        "Bakery",
+        "Beverages"
+      ]
+    },
+    {
+      "id": "opt_1785200838299_87dkhv",
+      "timestamp": "2026-07-28T01:07:18.299Z",
+      "location": "Chicago, IL",
+      "itemCount": 1,
+      "baselineStore": "Whole Foods",
+      "baselineTotal": 2.29,
+      "optimalTotal": 1.48,
+      "savingsAmount": 0.81,
+      "savingsPercent": 35,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "categories": [
+        "Produce"
+      ]
+    },
+    {
+      "id": "opt_1785200838298_33hkeq",
+      "timestamp": "2026-07-28T01:07:18.298Z",
+      "location": "New York, NY",
+      "itemCount": 3,
+      "baselineStore": "Target",
+      "baselineTotal": 25.16,
+      "optimalTotal": 22.67,
+      "savingsAmount": 2.49,
+      "savingsPercent": 10,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "SINGLE_STORE_OPTIMAL",
+      "categories": [
+        "Beverages",
+        "Dairy",
+        "Produce"
+      ]
+    },
+    {
+      "id": "opt_1785200838290_i9a6tw",
+      "timestamp": "2026-07-28T01:07:18.290Z",
+      "location": "Austin, Texas",
+      "itemCount": 4,
+      "baselineStore": "Walmart",
+      "baselineTotal": 16.07,
+      "optimalTotal": 16.07,
+      "savingsAmount": 0,
+      "savingsPercent": 0,
+      "storesCount": 1,
+      "isWorthwhile": false,
+      "resultType": "ZERO_SAVINGS",
+      "categories": [
+        "Produce",
+        "Dairy",
+        "Bakery",
+        "Meat & Eggs"
+      ]
+    }
+  ]
+}
