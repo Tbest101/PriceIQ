@@ -196,7 +196,9 @@ function App() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-main)' }}>Peter's Weekly Groceries</h3>
+                  <h3 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-main)' }}>
+                    {user ? `${user.name.split(' ')[0]}'s Weekly Groceries` : 'Sample Weekly Essentials'}
+                  </h3>
                   <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Estimated Baseline: $83.46 • Potential Savings: <strong style={{ color: 'var(--primary)' }}>~$14.20</strong></p>
                 </div>
                 <button 
