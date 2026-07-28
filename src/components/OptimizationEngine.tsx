@@ -233,11 +233,12 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
 
           {/* Skip Store Decision Rationale Card */}
           {skipAdvice && activeMode === 'balanced' && (
-            <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.08) 100%)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '12px 16px', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-md)', fontSize: '0.88rem' }}>
-              <div style={{ fontWeight: 700, color: '#fbbf24', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                💡 PriceIQ Decision Rationale: Skip {skipAdvice.storeToSkip}
+            <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(14, 165, 233, 0.06) 100%)', border: '1px solid rgba(245, 158, 11, 0.35)', padding: '14px 18px', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-md)', fontSize: '0.88rem', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.05)' }}>
+              <div style={{ fontWeight: 700, color: '#fbbf24', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
+                <span style={{ fontSize: '1.2rem' }}>💡</span>
+                <span>PriceIQ Decision Rationale: Skip {skipAdvice.storeToSkip}</span>
               </div>
-              <div style={{ color: 'var(--text-main)', fontSize: '0.85rem' }}>
+              <div style={{ color: 'var(--text-main)', fontSize: '0.88rem', lineHeight: 1.5, paddingLeft: '28px' }}>
                 {skipAdvice.reasonText}
               </div>
             </div>

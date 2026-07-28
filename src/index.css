@@ -7,18 +7,24 @@
   --surface-hover: rgba(255, 255, 255, 0.08);
   --surface-border: rgba(255, 255, 255, 0.1);
   
-  --primary: #10b981;
-  --primary-hover: #059669;
-  --secondary: #0ea5e9;
-  --accent: #34d399;
-  --success: #10b981;
+  /* Refined Premium Palette */
+  --primary: #059669;           /* Deep Emerald Green (Savings & Primary CTA) */
+  --primary-hover: #047857;     /* Forest Emerald Dark */
+  --primary-light: #10b981;    /* Mint Emerald Light */
+  
+  --secondary: #0ea5e9;         /* Teal-Blue (Intelligence, Charts & Analytics) */
+  --accent-teal-light: #38bdf8;
+  
+  --accent-amber: #f59e0b;      /* Warm Amber/Gold (AI Insights & Decision Rationale) */
+  --accent-amber-light: #fbbf24;
+  --success: #059669;
   
   --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-muted: #cbd5e1;        /* Higher contrast slate for crystal-clear readability */
   
   /* Gradients */
-  --gradient-brand: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-glow: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(14, 165, 233, 0.5));
+  --gradient-brand: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(5, 150, 105, 0.4), rgba(14, 165, 233, 0.4));
 
   /* Typography */
   --font-heading: 'Outfit', sans-serif;

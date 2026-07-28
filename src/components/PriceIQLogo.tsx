@@ -18,15 +18,15 @@ export const PriceIQLogo: React.FC<Props> = ({
 
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', userSelect: 'none' }}>
-      {/* App Icon Badge (Squircle container matching brand image with 3D tactile depth) */}
+      {/* App Icon Badge (Sleek Fintech Squircle Container) */}
       <div
         style={{
           width: containerSize,
           height: containerSize,
-          borderRadius: enclosed ? '22%' : '0%',
-          background: enclosed ? 'linear-gradient(145deg, #0e293a 0%, #061523 100%)' : 'transparent',
-          boxShadow: enclosed ? '0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.6)' : 'none',
-          border: enclosed ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
+          borderRadius: enclosed ? '24%' : '0%',
+          background: enclosed ? 'linear-gradient(145deg, #0e2d36 0%, #051418 100%)' : 'transparent',
+          boxShadow: enclosed ? '0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -2px 4px rgba(0, 0, 0, 0.7)' : 'none',
+          border: enclosed ? '1px solid rgba(255, 255, 255, 0.15)' : 'none',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -37,75 +37,68 @@ export const PriceIQLogo: React.FC<Props> = ({
         <svg
           width={iconSize * 0.75}
           height={iconSize * 0.85}
-          viewBox="0 0 100 115"
+          viewBox="0 0 100 110"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            {/* Playful Multi-Stop Gradient from luminous lime to deep forest teal */}
-            <linearGradient id="priceiq-playful-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#6EE7B7" />   {/* Light luminous mint-lime */}
-              <stop offset="35%" stopColor="#34D399" />  {/* Bright emerald */}
-              <stop offset="70%" stopColor="#10B981" />  {/* Rich brand green */}
-              <stop offset="100%" stopColor="#047857" /> {/* Deep forest teal */}
+            {/* Premium Emerald-to-Teal Fintech Gradient */}
+            <linearGradient id="priceiq-fintech-p-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#34D399" />   {/* Luminous Mint-Emerald */}
+              <stop offset="50%" stopColor="#059669" />  {/* Deep Emerald Green */}
+              <stop offset="100%" stopColor="#0EA5E9" /> {/* Intelligence Teal-Blue */}
             </linearGradient>
 
-            {/* Inner highlight overlay for 3D shine */}
-            <linearGradient id="priceiq-shine" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.4" />
-              <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.0" />
+            <linearGradient id="p-inner-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.3" />
             </linearGradient>
           </defs>
           
-          {/* Outer P-loop curve & tag shape */}
-          <path
-            d="M 22 10 
-               H 62 
-               C 85 10, 88 52, 62 52 
-               H 44 
-               V 85 
-               L 32 102 
-               L 20 85 
-               V 22 
-               C 20 14, 22 10, 22 10 Z"
-            fill="url(#priceiq-playful-gradient)"
+          {/* Distinctive Stylized Geometric "P" Mark */}
+          {/* Vertical Stem */}
+          <rect
+            x="18"
+            y="12"
+            width="20"
+            height="86"
+            rx="10"
+            fill="url(#priceiq-fintech-p-gradient)"
           />
 
-          {/* 3D Top Shine Overlay */}
+          {/* Upper "P" Loop */}
           <path
-            d="M 22 10 H 62 C 85 10, 88 52, 62 52 H 44 V 85 L 32 102 L 20 85 V 22 C 20 14, 22 10, 22 10 Z"
-            fill="url(#priceiq-shine)"
+            d="M 28 12 
+               H 60 
+               C 78 12, 88 24, 88 40 
+               C 88 56, 78 68, 60 68 
+               H 28 
+               V 48 
+               H 58 
+               C 64 48, 68 44, 68 40 
+               C 68 36, 64 32, 58 32 
+               H 28 
+               Z"
+            fill="url(#priceiq-fintech-p-gradient)"
           />
 
-          {/* Hole punch in tag top left */}
-          <circle cx="33" cy="22" r="5" fill="#061523" />
-
-          {/* Downward arrow cutout inside bottom stem */}
-          <path
-            d="M 32 88 L 24 76 H 29 V 64 H 35 V 76 H 40 Z"
-            fill="#061523"
-          />
-
-          {/* P inner hole cut */}
-          <path
-            d="M 44 26 H 58 C 66 26, 66 36, 58 36 H 44 Z"
-            fill="#061523"
-          />
+          {/* Precision Analytics Spark Cutout */}
+          <circle cx="60" cy="40" r="6" fill="#07191e" />
         </svg>
       </div>
 
       {/* Typography: PriceIQ */}
       {showText && (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: `${size * 0.7}px`, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1, color: 'var(--text-main)' }}>
+          <div style={{ fontSize: `${size * 0.72}px`, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1, color: 'var(--text-main)' }}>
             Price<span style={{
-              background: 'linear-gradient(135deg, #6EE7B7 0%, #10B981 100%)',
+              background: 'linear-gradient(135deg, #10B981 0%, #0EA5E9 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>IQ</span>
           </div>
           {showTagline && (
-            <span style={{ fontSize: `${Math.max(10, size * 0.2)}px`, fontWeight: 700, letterSpacing: '0.12em', color: '#34D399', marginTop: '4px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: `${Math.max(10, size * 0.2)}px`, fontWeight: 700, letterSpacing: '0.12em', color: '#10B981', marginTop: '4px', textTransform: 'uppercase' }}>
               Smarter Prices. Better Choices.
             </span>
           )}
