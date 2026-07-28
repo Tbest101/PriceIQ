@@ -221,9 +221,10 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
       
       <div style={{ textAlign: 'center', marginTop: 'var(--spacing-lg)' }}>
         <button 
+          className="btn-3d"
           onClick={() => onConfirm(optimalSplit)}
-          style={{ background: 'var(--gradient-brand)', color: 'white', padding: 'var(--spacing-md) var(--spacing-2xl)', borderRadius: 'var(--radius-full)', fontWeight: 600, fontSize: '1.2rem', transition: 'transform var(--transition-bounce)', border: 'none', width: '100%', maxWidth: '300px', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
-          Confirm Route & Fulfillment
+          style={{ padding: '16px 36px', fontSize: '1.2rem', width: '100%', maxWidth: '340px' }}>
+          ✨ Confirm Route &amp; Fulfillment
         </button>
       </div>
 

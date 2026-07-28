@@ -311,6 +311,7 @@ export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
                 <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{basket.reduce((acc, curr) => acc + curr.quantity, 0)}</span>
               </div>
               <button 
+                className="btn-3d"
                 onClick={() => {
                   if (!plannedStore) {
                     alert('Please select your planned store first');
@@ -318,11 +319,9 @@ export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
                   }
                   onOptimize(basket, location, plannedStore)
                 }}
-                style={{ width: '100%', padding: 'var(--spacing-md)', background: 'var(--gradient-brand)', borderRadius: 'var(--radius-full)', color: '#fff', fontWeight: 600, fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)', transition: 'transform 0.2s', border: 'none' }}
-                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                style={{ width: '100%', padding: '16px', fontSize: '1.1rem' }}
               >
-                Optimize &amp; Compare
+                ⚡ Optimize &amp; Compare Basket
               </button>
             </div>
           </div>

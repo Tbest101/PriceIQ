@@ -97,17 +97,18 @@ function App() {
               </p>
             </div>
             
-            <div className="hero-cta-group">
+            <div className="hero-cta-group" style={{ gap: '16px' }}>
               <button 
+                className="btn-3d"
                 onClick={(e) => { e.stopPropagation(); setView('basket'); }}
-                style={{ background: 'var(--gradient-brand)', color: '#fff', padding: 'var(--spacing-md) var(--spacing-xl)', borderRadius: 'var(--radius-full)', fontWeight: 600, fontSize: '1.1rem', boxShadow: '0 4px 20px 0 rgba(139, 92, 246, 0.4)', transition: 'all var(--transition-bounce)' }} onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 25px 0 rgba(139, 92, 246, 0.6)'; }} onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px 0 rgba(139, 92, 246, 0.4)'; }}>
-                Start Building Basket
+                style={{ padding: '14px 28px', fontSize: '1.1rem' }}>
+                🚀 Start Building Basket
               </button>
               <button 
-                className="glass-panel" 
+                className="btn-3d-secondary" 
                 onClick={(e) => { e.stopPropagation(); setShowHowItWorks(true); }}
-                style={{ padding: 'var(--spacing-md) var(--spacing-xl)', borderRadius: 'var(--radius-full)', fontWeight: 500, fontSize: '1.1rem', cursor: 'pointer' }}>
-                How it Works
+                style={{ padding: '14px 28px', fontSize: '1.1rem' }}>
+                💡 How it Works
               </button>
             </div>
 
