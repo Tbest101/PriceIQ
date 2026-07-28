@@ -60,6 +60,9 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeMode, setActiveMode] = useState<'single' | 'balanced' | 'max_savings'>('balanced');
+  const [showConstraintsModal, setShowConstraintsModal] = useState(false);
+  const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
+  const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
 
   useEffect(() => {
     const optimize = async () => {
@@ -111,10 +114,6 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
 
   const { baselineStore, optimalSplit } = result;
   const singleStyle = getStoreStyle(baselineStore.name);
-  const [showConstraintsModal, setShowConstraintsModal] = useState(false);
-  const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
-  const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
-
   const skipAdvice = (optimalSplit as any).skipStoreAdvice;
 
   const modes = (result?.optimalSplit as any)?.modes;
