@@ -110,9 +110,12 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   }
 
   const { baselineStore, optimalSplit } = result;
+  const singleStyle = getStoreStyle(baselineStore.name);
   const [showConstraintsModal, setShowConstraintsModal] = useState(false);
   const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
   const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
+
+  const skipAdvice = (optimalSplit as any).skipStoreAdvice;
 
   const modes = (result?.optimalSplit as any)?.modes;
   const currentPlan = modes ? modes[activeMode === 'single' ? 'single' : activeMode === 'balanced' ? 'balanced' : 'maxSavings'] : null;
@@ -230,13 +233,13 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
           </div>
 
           {/* Skip Store Decision Rationale Card */}
-          {optimalSplit.skipStoreAdvice && activeMode === 'balanced' && (
+          {skipAdvice && activeMode === 'balanced' && (
             <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.08) 100%)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '12px 16px', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-md)', fontSize: '0.88rem' }}>
               <div style={{ fontWeight: 700, color: '#fbbf24', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                💡 PriceIQ Decision Rationale: Skip {optimalSplit.skipStoreAdvice.storeToSkip}
+                💡 PriceIQ Decision Rationale: Skip {skipAdvice.storeToSkip}
               </div>
               <div style={{ color: 'var(--text-main)', fontSize: '0.85rem' }}>
-                {optimalSplit.skipStoreAdvice.reasonText}
+                {skipAdvice.reasonText}
               </div>
             </div>
           )}
