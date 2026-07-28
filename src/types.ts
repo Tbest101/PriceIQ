@@ -28,10 +28,11 @@ export interface RetailerPrice {
 }
 
 export interface ForecastRecommendation {
-  action: 'BUY_NOW' | 'WAIT' | 'FAIR_PRICE';
+  action: 'BUY_NOW' | 'WAIT' | 'STOCK_UP' | 'FAIR_PRICE';
   recommendationText: string;
   expectedRange?: string;
   potentialSavings?: number;
+  recommendedQuantity?: number;
 }
 
 export interface OptimizedItem {
@@ -63,6 +64,21 @@ export interface ShoppingModePlan {
   items: OptimizedItem[];
 }
 
+export interface SkipStoreAdvice {
+  storeToSkip: string;
+  potentialSavings: number;
+  extraMiles: number;
+  extraMinutes: number;
+  reasonText: string;
+}
+
+export interface UserConstraints {
+  maxStores: number;
+  maxMiles: number;
+  preferredStores: string[];
+  hasCostco: boolean;
+}
+
 export interface OptimalSplitResult {
   stores: string[];
   total: number;
@@ -73,6 +89,7 @@ export interface OptimalSplitResult {
   travelFrictionDeduction?: number;
   isWorthwhile?: boolean;
   resultType?: string;
+  skipStoreAdvice?: SkipStoreAdvice;
   modes?: {
     single: ShoppingModePlan;
     balanced: ShoppingModePlan;

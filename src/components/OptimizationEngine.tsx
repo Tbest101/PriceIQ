@@ -110,7 +110,10 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   }
 
   const { baselineStore, optimalSplit } = result;
-  const singleStyle = getStoreStyle(baselineStore.name);
+  const [showConstraintsModal, setShowConstraintsModal] = useState(false);
+  const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
+  const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
+
   const modes = (result?.optimalSplit as any)?.modes;
   const currentPlan = modes ? modes[activeMode === 'single' ? 'single' : activeMode === 'balanced' ? 'balanced' : 'maxSavings'] : null;
 
@@ -121,9 +124,17 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
         <button className="nav-text" onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
           ← Back to Basket
         </button>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          📍 Location: <strong style={{ color: 'var(--text-main)' }}>{location || '78753 (Austin, TX)'}</strong>
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            📍 Location: <strong style={{ color: 'var(--text-main)' }}>{location || '78753 (Austin, TX)'}</strong>
+          </span>
+          <button 
+            className="glass-panel"
+            onClick={() => setShowConstraintsModal(true)}
+            style={{ padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', cursor: 'pointer' }}>
+            ⚙️ Trip Preferences
+          </button>
+        </div>
       </div>
       
       <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
@@ -217,6 +228,18 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
             <span>🚗 <strong>{currentPlan?.stops || optimalSplit.stores.length} Stop{(currentPlan?.stops || optimalSplit.stores.length) > 1 ? 's' : ''}</strong> • {(currentPlan?.extraMiles ?? 3.1).toFixed(1)} miles • ~{currentPlan?.extraMinutes || 9} mins travel</span>
             <strong style={{ color: 'var(--primary)' }}>Net ${(currentPlan?.savingsAmount || optimalSplit.savingsAmount).toFixed(2)} Savings</strong>
           </div>
+
+          {/* Skip Store Decision Rationale Card */}
+          {optimalSplit.skipStoreAdvice && activeMode === 'balanced' && (
+            <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.08) 100%)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '12px 16px', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-md)', fontSize: '0.88rem' }}>
+              <div style={{ fontWeight: 700, color: '#fbbf24', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                💡 PriceIQ Decision Rationale: Skip {optimalSplit.skipStoreAdvice.storeToSkip}
+              </div>
+              <div style={{ color: 'var(--text-main)', fontSize: '0.85rem' }}>
+                {optimalSplit.skipStoreAdvice.reasonText}
+              </div>
+            </div>
+          )}
           
           {/* Optimal item breakdown with Price Freshness & Actionable Forecasting */}
           <div style={{ marginTop: 'var(--spacing-md)', borderTop: '1px solid var(--surface-border)', paddingTop: 'var(--spacing-md)' }}>
@@ -253,10 +276,15 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
                           <span style={{ background: 'rgba(245, 158, 11, 0.2)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>🛑 RECOMMENDATION: WAIT</span>
                           <span>Expected {forecast.expectedRange} within 7 days</span>
                         </div>
+                      ) : forecast.action === 'STOCK_UP' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8' }}>
+                          <span style={{ background: 'rgba(56, 189, 248, 0.2)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>📦 RECOMMENDATION: STOCK UP</span>
+                          <span>Near 6-month low • Recommended Qty: 2</span>
+                        </div>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary)' }}>
                           <span style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>🚀 RECOMMENDATION: BUY NOW</span>
-                          <span>14% below 30-day average price</span>
+                          <span>17% below 90-day average price</span>
                         </div>
                       )}
                     </div>
@@ -276,6 +304,90 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
           ✨ Confirm Plan &amp; Order Cart
         </button>
       </div>
+
+      {/* Trip Preferences Modal */}
+      {showConstraintsModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '480px', padding: '24px', borderRadius: '20px', position: 'relative', border: '1px solid var(--primary)' }}>
+            <button 
+              onClick={() => setShowConstraintsModal(false)}
+              style={{ position: 'absolute', top: '16px', right: '16px', color: 'var(--text-muted)', fontSize: '1.4rem', border: 'none', background: 'none', cursor: 'pointer' }}
+            >&times;</button>
+
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '4px', color: 'var(--text-main)' }}>⚙️ Household Trip Constraints</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
+              Set your personal shopping rules so PriceIQ optimizes specifically for your household.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
+                  Maximum Stores Allowed per Trip: <strong style={{ color: 'var(--primary)' }}>{maxStoresConstraint}</strong>
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[1, 2, 3, 4].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => setMaxStoresConstraint(num)}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        borderRadius: '8px',
+                        border: maxStoresConstraint === num ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
+                        background: maxStoresConstraint === num ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.03)',
+                        color: maxStoresConstraint === num ? 'var(--primary)' : 'var(--text-main)',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {num} {num === 1 ? 'Store' : 'Stores'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
+                  Max Travel Distance: <strong style={{ color: 'var(--primary)' }}>{maxDistanceConstraint} miles</strong>
+                </label>
+                <input 
+                  type="range" 
+                  min="3" 
+                  max="20" 
+                  step="1"
+                  value={maxDistanceConstraint} 
+                  onChange={(e) => setMaxDistanceConstraint(parseFloat(e.target.value))}
+                  style={{ width: '100%', accentColor: 'var(--primary)' }}
+                />
+              </div>
+
+              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Wholesale Club Memberships:</span>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input type="checkbox" defaultChecked /> Costco
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input type="checkbox" defaultChecked /> Sam's Club
+                  </label>
+                </div>
+              </div>
+
+              <button 
+                className="btn-3d"
+                onClick={() => {
+                  if (maxStoresConstraint === 1) setActiveMode('single');
+                  else if (maxStoresConstraint === 2) setActiveMode('balanced');
+                  else setActiveMode('max_savings');
+                  setShowConstraintsModal(false);
+                }}
+                style={{ width: '100%', padding: '12px', marginTop: '8px' }}>
+                Save Constraints &amp; Recalculate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

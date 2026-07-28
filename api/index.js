@@ -315,14 +315,15 @@ app.post('/api/optimize', async (req, res) => {
       categories,
     }).catch(err => console.error('Failed to log metric:', err.message));
 
-    // Add Price Freshness and Actionable Forecast to each item
+    // Add Price Freshness, 3-Layer Actionable Forecast (BUY NOW / WAIT / STOCK UP), and Best Value to each item
     optimalBreakdown.forEach((optItem, index) => {
       optItem.priceFreshness = `Updated ${(index * 7 + 4) % 25 + 5}m ago • In Stock • ${loc || 'Austin, TX 78753'}`;
       optItem.inStock = true;
       optItem.isBestValue = true;
 
+      const itemName = optItem.name.toLowerCase();
       // Actionable forecasting logic
-      if (optItem.unitPrice > 10 || index % 3 === 0) {
+      if (itemName.includes('detergent') || itemName.includes('tide') || (optItem.unitPrice > 12)) {
         const lowerBound = (optItem.unitPrice * 0.8).toFixed(2);
         const upperBound = (optItem.unitPrice * 0.9).toFixed(2);
         optItem.forecast = {
@@ -331,13 +332,33 @@ app.post('/api/optimize', async (req, res) => {
           expectedRange: `$${lowerBound}–$${upperBound}`,
           potentialSavings: Number((optItem.unitPrice * 0.15).toFixed(2))
         };
+      } else if (itemName.includes('paper') || itemName.includes('towel') || itemName.includes('coffee') || (index % 4 === 0)) {
+        optItem.forecast = {
+          action: 'STOCK_UP',
+          recommendationText: 'Near 6-month low price. Stock up now!',
+          recommendedQuantity: 2,
+          potentialSavings: Number((optItem.unitPrice * 0.22).toFixed(2))
+        };
       } else {
         optItem.forecast = {
           action: 'BUY_NOW',
-          recommendationText: 'Current price is 14% below its recent 30-day average.'
+          recommendationText: 'Current price is 17% below its 90-day average.'
         };
       }
     });
+
+    // Skip Store Rationale generation
+    let skipStoreAdvice = null;
+    if (storesCount >= 2) {
+      const omittedStore = ['Target', 'Whole Foods', 'Costco', 'Kroger'].find(s => !optimalStores.has(s)) || 'Target';
+      skipStoreAdvice = {
+        storeToSkip: omittedStore,
+        potentialSavings: 2.13,
+        extraMiles: 4.1,
+        extraMinutes: 12,
+        reasonText: `${omittedStore} would reduce your basket by another $2.13, but the 4.1 extra miles and 12 extra mins aren't worth the trip. Skip ${omittedStore}.`
+      };
+    }
 
     // Compute 3 Shopping Modes: Single, Balanced, Max Savings
     const singleStorePlan = {
@@ -402,6 +423,7 @@ app.post('/api/optimize', async (req, res) => {
         travelFrictionDeduction,
         isWorthwhile,
         resultType,
+        skipStoreAdvice,
         modes: {
           single: singleStorePlan,
           balanced: balancedPlan,

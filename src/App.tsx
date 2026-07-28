@@ -131,11 +131,11 @@ function App() {
 
             <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', padding: '0 var(--spacing-sm)' }}>
               <h2 className="hero-heading" style={{ fontSize: '2.8rem', fontWeight: 800 }}>
-                Your shopping list. <br/>
-                <span className="text-gradient">Lower prices.</span>
+                The Intelligent <br/>
+                <span className="text-gradient">Shopping Optimizer.</span>
               </h2>
               <p className="hero-subtitle" style={{ fontSize: '1.15rem' }}>
-                Compare your entire basket across nearby stores and discover the smartest, most cost-effective way to shop.
+                Know where to buy, when to buy, and when the extra trip isn't worth it.
               </p>
             </div>
             
