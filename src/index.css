@@ -2,7 +2,7 @@
 
 :root {
   /* Colors */
-  --bg-color: #0b1120;
+  --bg-color: #07191e;
   --surface-color: rgba(255, 255, 255, 0.04);
   --surface-hover: rgba(255, 255, 255, 0.08);
   --surface-border: rgba(255, 255, 255, 0.1);
@@ -53,7 +53,9 @@
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-color);
+  background-color: #07191e;
+  background-image: radial-gradient(circle at 50% -10%, #0e2d36 0%, #051418 100%);
+  background-attachment: fixed;
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
