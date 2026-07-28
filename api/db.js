@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-// Vercel KV environment variables (Upstash REST format)
-const useKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+// Vercel KV / Upstash environment variables (supports KV_, STORAGE_, or UPSTASH_REDIS_ prefixes)
+const kvUrl = process.env.KV_REST_API_URL || process.env.STORAGE_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.STORAGE_URL || process.env.KV_URL;
+const kvToken = process.env.KV_REST_API_TOKEN || process.env.STORAGE_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.STORAGE_TOKEN || process.env.KV_TOKEN;
+
+const useKV = !!(kvUrl && kvToken);
 
 // Serverless function environments only allow writing to /tmp
 const localDbPath = process.env.VERCEL 
@@ -11,11 +14,11 @@ const localDbPath = process.env.VERCEL
 
 // Helper to query Vercel KV / Upstash Redis REST API
 async function kvFetch(commandArray) {
-  const url = process.env.KV_REST_API_URL;
-  const response = await fetch(url, {
+  if (!kvUrl || !kvToken) throw new Error('KV credentials missing');
+  const response = await fetch(kvUrl, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+      Authorization: `Bearer ${kvToken}`,
       'Content-Type': 'application/json',
       Accept: 'application/json'
     },
