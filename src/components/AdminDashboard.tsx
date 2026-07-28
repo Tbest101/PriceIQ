@@ -50,7 +50,7 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [runningBenchmark, setRunningBenchmark] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'bad_results' | 'geo' | 'categories'>('overview');
+  const [activeTab, setActiveTab] = useState<'personal' | 'overview' | 'bad_results' | 'geo' | 'categories'>('personal');
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -148,18 +148,32 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)', borderBottom: '1px solid var(--surface-border)', paddingBottom: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
         <button
+          onClick={() => setActiveTab('personal')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 700,
+            background: activeTab === 'personal' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+            color: activeTab === 'personal' ? 'var(--primary)' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          💰 Personal Savings &amp; ROI
+        </button>
+        <button
           onClick={() => setActiveTab('overview')}
           style={{
             padding: '8px 16px',
             borderRadius: 'var(--radius-sm)',
             fontWeight: 600,
-            background: activeTab === 'overview' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            background: activeTab === 'overview' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
             color: activeTab === 'overview' ? 'var(--primary)' : 'var(--text-muted)',
             border: 'none',
             cursor: 'pointer'
           }}
         >
-          📈 Overview Metrics
+          📈 Global Benchmark Engine
         </button>
         <button
           onClick={() => setActiveTab('bad_results')}
@@ -173,8 +187,55 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             cursor: 'pointer'
           }}
         >
-          🚨 Bad / Minimal Results ({data.badResults.length})
+          🚨 Telemetry Log ({data.badResults.length})
         </button>
+
+      {/* Tab: Personal Savings & ROI Dashboard */}
+      {activeTab === 'personal' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+          
+          {/* Top Savings Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--spacing-md)' }}>
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>This Week's Savings</span>
+              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>$18.42</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Across 2 basket runs</span>
+            </div>
+            
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>This Month's Savings</span>
+              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>$67.81</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>8 baskets optimized</span>
+            </div>
+
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Savings Since Joining</span>
+              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>$241.36</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>28 baskets optimized</span>
+            </div>
+          </div>
+
+          {/* Community Rank & ROI proof */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-md)' }}>
+            <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(14, 165, 233, 0.05) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🏆</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>Austin Shopper Leaderboard</h3>
+              <p style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '1.05rem', margin: 0 }}>
+                You saved more than 72% of PriceIQ shoppers in Austin this month!
+              </p>
+            </div>
+
+            <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>💳</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>PriceIQ Premium ROI Proof</h3>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                PriceIQ Premium Cost: <strong style={{ color: 'var(--text-main)' }}>$4.99/mo</strong><br/>
+                Additional Net Savings Generated: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>+$31.72 this month</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
         <button
           onClick={() => setActiveTab('geo')}
           style={{

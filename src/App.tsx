@@ -82,34 +82,94 @@ function App() {
       <main style={{ flex: 1, padding: 'var(--spacing-3xl) 0', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
         
         {view === 'home' && (
-          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 'var(--spacing-xl)' }}>
-            <div className="animate-float" style={{ padding: 'var(--spacing-xs) var(--spacing-md)', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-full)', color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 'calc(var(--spacing-md) * -1)' }}>
-              ✨ SMARTER PRICES. BETTER CHOICES.
-            </div>
+          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 'var(--spacing-xl)', width: '100%', maxWidth: '900px' }}>
             
+            {/* Shopping Location Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: '6px 16px', borderRadius: 'var(--radius-full)', fontSize: '0.88rem', color: 'var(--text-main)' }}>
+              <span>📍 Shopping near: <strong style={{ color: 'var(--primary)' }}>78753 (Austin, TX)</strong></span>
+              <span style={{ color: 'var(--text-muted)' }}>• Stores within 5 miles</span>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setView('basket'); }}
+                style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.8rem', marginLeft: '4px', cursor: 'pointer' }}>✎ Change</button>
+            </div>
+
             <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', padding: '0 var(--spacing-sm)' }}>
-              <h2 className="hero-heading">
-                Optimize your entire basket, <br/>
-                <span className="text-gradient">maximize your savings.</span>
+              <h2 className="hero-heading" style={{ fontSize: '2.8rem', fontWeight: 800 }}>
+                Your shopping list. <br/>
+                <span className="text-gradient">Lower prices.</span>
               </h2>
-              <p className="hero-subtitle">
-                Don't just compare single items. Input your complete shopping list and discover the most cost-effective combination of retailers for your groceries and household goods.
+              <p className="hero-subtitle" style={{ fontSize: '1.15rem' }}>
+                Compare your entire basket across nearby stores and discover the smartest, most cost-effective way to shop.
               </p>
             </div>
             
-            <div className="hero-cta-group" style={{ gap: '16px' }}>
+            <div className="hero-cta-group" style={{ gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button 
                 className="btn-3d"
                 onClick={(e) => { e.stopPropagation(); setView('basket'); }}
-                style={{ padding: '14px 28px', fontSize: '1.1rem' }}>
-                🚀 Start Building Basket
+                style={{ padding: '16px 32px', fontSize: '1.15rem' }}>
+                🚀 Build My Basket
               </button>
               <button 
                 className="btn-3d-secondary" 
                 onClick={(e) => { e.stopPropagation(); setShowHowItWorks(true); }}
-                style={{ padding: '14px 28px', fontSize: '1.1rem' }}>
-                💡 How it Works
+                style={{ padding: '16px 28px', fontSize: '1.15rem' }}>
+                💡 How PriceIQ Works
               </button>
+            </div>
+
+            {/* Quick Actions Bar */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: 'var(--spacing-md)' }}>
+              <div 
+                className="glass-panel" 
+                onClick={() => setView('basket')}
+                style={{ padding: '12px 20px', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
+                onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
+                onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
+              >
+                <span style={{ fontSize: '1.2rem' }}>＋</span>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Build a Basket</span>
+              </div>
+              <div 
+                className="glass-panel" 
+                onClick={() => setView('basket')}
+                style={{ padding: '12px 20px', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
+                onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
+                onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
+              >
+                <span style={{ fontSize: '1.2rem' }}>📷</span>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Scan Receipt</span>
+              </div>
+              <div 
+                className="glass-panel" 
+                onClick={() => setView('basket')}
+                style={{ padding: '12px 20px', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
+                onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
+                onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
+              >
+                <span style={{ fontSize: '1.2rem' }}>↻</span>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Repeat Last Basket</span>
+              </div>
+            </div>
+
+            {/* Saved Basket Preview Card */}
+            <div className="glass-panel" style={{ width: '100%', maxWidth: '650px', padding: 'var(--spacing-lg)', textAlign: 'left', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(14, 165, 233, 0.05) 100%)', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)', fontWeight: 700 }}>🛒 Saved Weekly Basket</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Austin, TX • 17 items</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-main)' }}>Peter's Weekly Groceries</h3>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Estimated Baseline: $83.46 • Potential Savings: <strong style={{ color: 'var(--primary)' }}>~$14.20</strong></p>
+                </div>
+                <button 
+                  className="btn-3d"
+                  onClick={() => setView('basket')}
+                  style={{ padding: '8px 20px', fontSize: '0.9rem' }}>
+                  Optimize &amp; Save →
+                </button>
+              </div>
             </div>
 
             <div className="features-grid">
