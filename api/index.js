@@ -108,19 +108,30 @@ app.get('/api/search', async (req, res) => {
 
 // POST /api/optimize   body: { items: [{ name: "Organic Bananas", quantity: 2 }, ...] }
 app.post('/api/optimize', async (req, res) => {
-  const { items, location, plannedStore } = req.body;
+  const { items, location, plannedStore, selectedRetailers } = req.body;
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Missing or empty items array' });
   }
 
   const loc = location || 'United States';
+  const retailerFilterSet = (Array.isArray(selectedRetailers) && selectedRetailers.length > 0)
+    ? selectedRetailers.map(s => s.toLowerCase())
+    : null;
 
   try {
     // Search all items in parallel
     const searchPromises = items.map(async (item) => {
-      const liveResults = await searchSerpApi(item.name, loc);
-      const results = liveResults || getMockResults(item.name);
-      return { itemName: item.name, quantity: item.quantity, results };
+      let rawResults = await searchSerpApi(item.name, loc);
+      if (!rawResults || rawResults.length === 0) {
+        rawResults = getMockResults(item.name);
+      }
+      
+      // Filter by selectedRetailers if provided
+      const results = retailerFilterSet
+        ? rawResults.filter(r => retailerFilterSet.some(allowed => r.source.toLowerCase().includes(allowed) || allowed.includes(r.source.toLowerCase())))
+        : rawResults;
+
+      return { itemName: item.name, quantity: item.quantity, results: results.length > 0 ? results : rawResults };
     });
 
     const allResults = await Promise.all(searchPromises);

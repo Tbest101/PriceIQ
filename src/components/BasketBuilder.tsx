@@ -35,19 +35,38 @@ const isClothing = (name: string) => {
 };
 
 interface Props {
-  onOptimize: (items: BasketItem[], location: string, plannedStore: string) => void;
+  onOptimize: (items: BasketItem[], location: string, plannedStore: string, selectedRetailers?: string[]) => void;
   user?: any;
 }
+
+const AVAILABLE_RETAILERS = [
+  { name: 'H-E-B', logo: '🔴' },
+  { name: 'Walmart', logo: '🛒' },
+  { name: 'Target', logo: '🎯' },
+  { name: 'Costco', logo: '📦' },
+  { name: 'Aldi', logo: '🏷️' },
+  { name: 'Whole Foods', logo: '🌿' },
+  { name: 'Kroger', logo: '📦' }
+];
 
 export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [search, setSearch] = useState('');
   const [location, setLocation] = useState('');
   const [plannedStore, setPlannedStore] = useState('Walmart');
+  const [selectedRetailers, setSelectedRetailers] = useState<string[]>(['H-E-B', 'Walmart', 'Target', 'Costco', 'Aldi', 'Whole Foods']);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [dataSource, setDataSource] = useState<string>('');
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const toggleRetailer = (retailerName: string) => {
+    setSelectedRetailers(prev => 
+      prev.includes(retailerName) 
+        ? prev.filter(r => r !== retailerName)
+        : [...prev, retailerName]
+    );
+  };
 
   // Debounced live search
   useEffect(() => {
@@ -178,6 +197,48 @@ export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
               <option value="Kroger" style={{ background: 'var(--surface-color)' }}>Kroger</option>
               <option value="Costco" style={{ background: 'var(--surface-color)' }}>Costco</option>
             </select>
+          </div>
+        </div>
+
+        {/* Retailer Selection Section */}
+        <div style={{ marginBottom: 'var(--spacing-md)', background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)' }}>
+              🏪 Retailers to Include in Comparison ({selectedRetailers.length} selected):
+            </span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Click to select/deselect</span>
+          </div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {AVAILABLE_RETAILERS.map(r => {
+              const isSelected = selectedRetailers.includes(r.name);
+              return (
+                <button
+                  key={r.name}
+                  type="button"
+                  onClick={() => toggleRetailer(r.name)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '4px 10px',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: isSelected ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
+                    background: isSelected ? 'rgba(5, 150, 105, 0.2)' : 'rgba(0,0,0,0.2)',
+                    color: isSelected ? 'var(--text-main)' : 'var(--text-muted)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>{r.logo}</span>
+                  <span>{r.name}</span>
+                  <span style={{ fontSize: '0.75rem', opacity: isSelected ? 1 : 0.4 }}>
+                    {isSelected ? '✓' : '＋'}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)' }}>
@@ -313,11 +374,11 @@ export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
               <button 
                 className="btn-3d"
                 onClick={() => {
-                  if (!plannedStore) {
-                    alert('Please select your planned store first');
+                  if (selectedRetailers.length === 0) {
+                    alert('Please select at least one retailer for comparison');
                     return;
                   }
-                  onOptimize(basket, location, plannedStore)
+                  onOptimize(basket, location, plannedStore, selectedRetailers)
                 }}
                 style={{ width: '100%', padding: '16px', fontSize: '1.1rem' }}
               >

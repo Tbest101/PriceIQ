@@ -42,10 +42,13 @@ function App() {
     }
   }, []);
 
-  const handleOptimize = (items: BasketItem[], loc: string, store: string) => {
+  const [selectedRetailers, setSelectedRetailers] = useState<string[]>(['H-E-B', 'Walmart', 'Target', 'Costco', 'Aldi', 'Whole Foods']);
+
+  const handleOptimize = (items: BasketItem[], loc: string, store: string, retailers?: string[]) => {
     setBasket(items);
     setLocation(loc);
     setPlannedStore(store);
+    if (retailers) setSelectedRetailers(retailers);
     localStorage.setItem('priceiq_last_basket', JSON.stringify(items));
     setView('optimization');
   };
@@ -238,7 +241,8 @@ function App() {
           <OptimizationEngine 
             basket={basket} 
             location={location} 
-            plannedStore={plannedStore} 
+            plannedStore={plannedStore}
+            selectedRetailers={selectedRetailers} 
             onBack={() => setView('basket')} 
             onConfirm={(optimalSplit) => {
               setCheckoutData(optimalSplit);

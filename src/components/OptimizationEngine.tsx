@@ -51,11 +51,14 @@ interface Props {
   basket: BasketItem[];
   location: string;
   plannedStore: string;
+  selectedRetailers?: string[];
   onBack: () => void;
   onConfirm: (data: any) => void;
 }
 
-export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedStore, onBack, onConfirm }) => {
+const ALL_RETAILER_LIST = ['H-E-B', 'Walmart', 'Target', 'Costco', 'Aldi', 'Whole Foods', 'Kroger'];
+
+export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedStore, selectedRetailers: initialRetailers, onBack, onConfirm }) => {
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -63,30 +66,32 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   const [showConstraintsModal, setShowConstraintsModal] = useState(false);
   const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
   const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
+  const [activeRetailers, setActiveRetailers] = useState<string[]>(initialRetailers || ALL_RETAILER_LIST);
+
+  const fetchOptimization = async (retailerList: string[]) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const items = basket.map(b => ({ name: b.size ? `${b.product.name} (Size: ${b.size})` : b.product.name, quantity: b.quantity }));
+      const response = await fetch('/api/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, location: location.trim() || undefined, plannedStore, selectedRetailers: retailerList }),
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const data = await response.json();
+      setResult(data);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const optimize = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const items = basket.map(b => ({ name: b.size ? `${b.product.name} (Size: ${b.size})` : b.product.name, quantity: b.quantity }));
-        const response = await fetch('/api/optimize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items, location: location.trim() || undefined, plannedStore }),
-        });
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
-        const data = await response.json();
-        setResult(data);
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    optimize();
-  }, [basket]);
+    fetchOptimization(activeRetailers);
+  }, [basket, location, plannedStore]);
 
   const totalItems = basket.reduce((acc, curr) => acc + curr.quantity, 0);
 
@@ -365,23 +370,39 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
               </div>
 
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Wholesale Club Memberships:</span>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                    <input type="checkbox" defaultChecked /> Costco
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                    <input type="checkbox" defaultChecked /> Sam's Club
-                  </label>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Retailers Included for Comparison:</span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '8px' }}>
+                  {ALL_RETAILER_LIST.map(ret => {
+                    const checked = activeRetailers.includes(ret);
+                    return (
+                      <label key={ret} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: checked ? 'var(--text-main)' : 'var(--text-muted)', cursor: 'pointer' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={checked}
+                          onChange={() => {
+                            setActiveRetailers(prev => 
+                              prev.includes(ret) ? prev.filter(r => r !== ret) : [...prev, ret]
+                            );
+                          }}
+                        /> 
+                        {ret}
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
               <button 
                 className="btn-3d"
                 onClick={() => {
+                  if (activeRetailers.length === 0) {
+                    alert('Please select at least one retailer');
+                    return;
+                  }
                   if (maxStoresConstraint === 1) setActiveMode('single');
                   else if (maxStoresConstraint === 2) setActiveMode('balanced');
                   else setActiveMode('max_savings');
+                  fetchOptimization(activeRetailers);
                   setShowConstraintsModal(false);
                 }}
                 style={{ width: '100%', padding: '12px', marginTop: '8px' }}>
