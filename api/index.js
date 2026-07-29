@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses } = require('./db.js');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses } from './db.js';
 
 dotenv.config();
 
@@ -616,4 +616,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-module.exports = app;
+export default app;

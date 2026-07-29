@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Vercel KV / Upstash environment variables (supports KV_, STORAGE_, or UPSTASH_REDIS_ prefixes)
 const kvUrl = process.env.KV_REST_API_URL || process.env.STORAGE_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.STORAGE_URL || process.env.KV_URL;
@@ -59,7 +59,7 @@ function saveLocalDb() {
   }
 }
 
-async function logVisit(sessionId, ip) {
+export async function logVisit(sessionId, ip) {
   const timestamp = new Date().toISOString();
   const uid = sessionId || ip || 'unknown_session';
   
@@ -82,7 +82,7 @@ async function logVisit(sessionId, ip) {
   }
 }
 
-async function logSearch(sessionId, query) {
+export async function logSearch(sessionId, query) {
   if (!query || query.trim() === '') return;
   const timestamp = new Date().toISOString();
   const uid = sessionId || 'unknown_session';
@@ -105,7 +105,7 @@ async function logSearch(sessionId, query) {
   }
 }
 
-async function logOptimize(sessionId, itemCount) {
+export async function logOptimize(sessionId, itemCount) {
   const timestamp = new Date().toISOString();
   const uid = sessionId || 'unknown_session';
 
@@ -126,7 +126,7 @@ async function logOptimize(sessionId, itemCount) {
   }
 }
 
-async function logOptimizationMetric(metricPayload) {
+export async function logOptimizationMetric(metricPayload) {
   const entry = {
     id: `opt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
     timestamp: new Date().toISOString(),
@@ -149,7 +149,7 @@ async function logOptimizationMetric(metricPayload) {
   return entry;
 }
 
-async function getAnalyticsSummary() {
+export async function getAnalyticsSummary() {
   let records = [];
 
   if (useKV) {
@@ -311,7 +311,7 @@ async function getAnalyticsSummary() {
   };
 }
 
-async function getStats() {
+export async function getStats() {
   if (useKV) {
     try {
       const visitsRes = await kvFetch(['GET', 'stats:total_visits']);
@@ -368,7 +368,7 @@ async function getStats() {
   }
 }
 
-async function logSurveyResponse(surveyData) {
+export async function logSurveyResponse(surveyData) {
   if (useKV) {
     try {
       await kvFetch(['LPUSH', 'stats:surveys', JSON.stringify(surveyData)]);
@@ -382,7 +382,7 @@ async function logSurveyResponse(surveyData) {
   }
 }
 
-async function getSurveyResponses() {
+export async function getSurveyResponses() {
   if (useKV) {
     try {
       const res = await kvFetch(['LRANGE', 'stats:surveys', 0, 999]);
@@ -403,14 +403,5 @@ async function getSurveyResponses() {
   }
 }
 
-module.exports = {
-  logVisit,
-  logSearch,
-  logOptimize,
-  logOptimizationMetric,
-  getAnalyticsSummary,
-  getStats,
-  logSurveyResponse,
-  getSurveyResponses,
-};
+
 
