@@ -48,7 +48,6 @@ interface OptimizationResult {
 }
 
 import { SurveyWizardModal } from './SurveyWizardModal';
-import type { SurveyContextData } from './SurveyWizardModal';
 
 interface Props {
   basket: BasketItem[];
