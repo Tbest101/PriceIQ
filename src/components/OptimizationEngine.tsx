@@ -76,7 +76,13 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
     setLoading(true);
     setError(null);
     try {
-      const items = basket.map(b => ({ name: b.size ? `${b.product.name} (Size: ${b.size})` : b.product.name, quantity: b.quantity }));
+      const items = basket.map(b => {
+        const pName = b.product?.name || (b as any).name || 'Grocery Item';
+        return {
+          name: b.size ? `${pName} (Size: ${b.size})` : pName,
+          quantity: b.quantity || 1
+        };
+      });
       const response = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

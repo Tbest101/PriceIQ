@@ -63,22 +63,43 @@ async function searchSerpApi(query, location = 'United States') {
   const apiKey = process.env.SERPAPI_KEY;
   if (!apiKey) return null; // Signal to use fallback
 
-  const url = new URL('https://serpapi.com/search.json');
-  url.searchParams.append('engine', 'google_shopping');
-  url.searchParams.append('q', query);
-  url.searchParams.append('api_key', apiKey);
-  url.searchParams.append('location', location);
+  try {
+    const url = new URL('https://serpapi.com/search.json');
+    url.searchParams.append('engine', 'google_shopping');
+    url.searchParams.append('q', query);
+    url.searchParams.append('api_key', apiKey);
+    
+    // If location is a zip code or short string, use standard United States to avoid SerpApi location validation error
+    const locParam = (location && location.length > 5 && !/^\d+$/.test(location.trim())) ? location : 'United States';
+    url.searchParams.append('location', locParam);
 
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`SerpApi HTTP ${response.status}`);
-  const data = await response.json();
-  return (data.shopping_results || []).slice(0, 8).map(r => ({
-    title: r.title,
-    source: r.source,
-    price: r.price,
-    extracted_price: r.extracted_price,
-    thumbnail: r.thumbnail || '',
-  }));
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      console.warn(`⚠️ SerpApi returned status ${response.status} for "${query}", falling back to mock data.`);
+      return null;
+    }
+    const data = await response.json();
+    if (!data.shopping_results || !Array.isArray(data.shopping_results) || data.shopping_results.length === 0) {
+      return null;
+    }
+    return data.shopping_results.slice(0, 8).map(r => {
+      let extracted = r.extracted_price;
+      if (typeof extracted !== 'number') {
+        const parsed = parseFloat(String(r.price || '').replace(/[^0-9.]/g, ''));
+        extracted = !isNaN(parsed) && parsed > 0 ? parsed : 2.99;
+      }
+      return {
+        title: r.title || query,
+        source: r.source || 'Retailer',
+        price: r.price || `$${extracted.toFixed(2)}`,
+        extracted_price: extracted,
+        thumbnail: r.thumbnail || '',
+      };
+    });
+  } catch (err) {
+    console.warn(`⚠️ SerpApi fetch error for "${query}": ${err.message}, falling back to mock data.`);
+    return null; // Always return null on error so caller gracefully falls back to mock results!
+  }
 }
 
 // ─── Routes ─────────────────────────────────────────────────────────
@@ -121,17 +142,20 @@ app.post('/api/optimize', async (req, res) => {
   try {
     // Search all items in parallel
     const searchPromises = items.map(async (item) => {
-      let rawResults = await searchSerpApi(item.name, loc);
-      if (!rawResults || rawResults.length === 0) {
-        rawResults = getMockResults(item.name);
+      const itemName = item.name || (item.product && item.product.name) || 'Grocery Item';
+      const quantity = Math.max(1, item.quantity || 1);
+
+      let rawResults = await searchSerpApi(itemName, loc);
+      if (!rawResults || !Array.isArray(rawResults) || rawResults.length === 0) {
+        rawResults = getMockResults(itemName);
       }
       
       // Filter by selectedRetailers if provided
       const results = retailerFilterSet
-        ? rawResults.filter(r => retailerFilterSet.some(allowed => r.source.toLowerCase().includes(allowed) || allowed.includes(r.source.toLowerCase())))
+        ? rawResults.filter(r => r && r.source && retailerFilterSet.some(allowed => r.source.toLowerCase().includes(allowed) || allowed.includes(r.source.toLowerCase())))
         : rawResults;
 
-      return { itemName: item.name, quantity: item.quantity, results: results.length > 0 ? results : rawResults };
+      return { itemName, quantity, results: (results && results.length > 0) ? results : rawResults };
     });
 
     const allResults = await Promise.all(searchPromises);
