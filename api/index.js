@@ -477,6 +477,17 @@ app.post('/api/optimize', async (req, res) => {
   }
 });
 
+// GET /api/admin/analytics - Global analytics summary
+app.get('/api/admin/analytics', async (req, res) => {
+  try {
+    const summary = await getAnalyticsSummary();
+    res.json(summary);
+  } catch (err) {
+    console.error('❌ Analytics error:', err.message);
+    res.status(500).json({ error: 'Failed to retrieve analytics', details: err.message });
+  }
+});
+
 // POST /api/survey/submit
 app.post('/api/survey/submit', async (req, res) => {
   try {
