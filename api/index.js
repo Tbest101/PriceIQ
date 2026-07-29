@@ -1,14 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses } from './db.js';
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses } = require('./db.js');
 
 dotenv.config();
 
 const app = express();
 const PORT = 3001;
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors());
 app.use(express.json());
 
 // ─── Mock Fallback Data ─────────────────────────────────────────────
@@ -616,4 +616,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-export default app;
+module.exports = app;
