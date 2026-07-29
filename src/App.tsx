@@ -132,6 +132,11 @@ function App() {
                 style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.8rem', marginLeft: '4px', cursor: 'pointer' }}>✎ Change</button>
             </div>
 
+            {/* Research Mode Opt-In Banner */}
+            <div style={{ background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(5, 150, 105, 0.06) 100%)', border: '1px solid rgba(14, 165, 233, 0.25)', padding: '8px 18px', borderRadius: 'var(--radius-full)', fontSize: '0.82rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '780px' }}>
+              <span>🔬 <strong>PriceIQ Research Program:</strong> Participating in our voluntary consumer decision study helps improve grocery affordability research.</span>
+            </div>
+
             <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', padding: '0 var(--spacing-sm)' }}>
               <h2 className="hero-heading" style={{ fontSize: '2.8rem', fontWeight: 800 }}>
                 The Intelligent <br/>

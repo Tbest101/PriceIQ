@@ -365,6 +365,38 @@ export async function getStats() {
       events: memoryDb.events,
       isProductionKV: false
     };
+export async function logSurveyResponse(surveyData) {
+  if (useKV) {
+    try {
+      await kvFetch(['LPUSH', 'stats:surveys', JSON.stringify(surveyData)]);
+    } catch (err) {
+      console.error('❌ KV logSurveyResponse error:', err.message);
+    }
+  } else {
+    if (!memoryDb.surveys) memoryDb.surveys = [];
+    memoryDb.surveys.unshift(surveyData);
+    saveLocalDb();
+  }
+}
+
+export async function getSurveyResponses() {
+  if (useKV) {
+    try {
+      const res = await kvFetch(['LRANGE', 'stats:surveys', 0, 999]);
+      const rawList = res?.result || [];
+      return rawList.map(str => {
+        try {
+          return typeof str === 'string' ? JSON.parse(str) : str;
+        } catch {
+          return null;
+        }
+      }).filter(Boolean);
+    } catch (err) {
+      console.error('❌ KV getSurveyResponses error:', err.message);
+      return [];
+    }
+  } else {
+    return memoryDb.surveys || [];
   }
 }
 

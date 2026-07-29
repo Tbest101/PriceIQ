@@ -47,6 +47,9 @@ interface OptimizationResult {
   };
 }
 
+import { SurveyWizardModal } from './SurveyWizardModal';
+import type { SurveyContextData } from './SurveyWizardModal';
+
 interface Props {
   basket: BasketItem[];
   location: string;
@@ -64,6 +67,8 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   const [error, setError] = useState<string | null>(null);
   const [activeMode, setActiveMode] = useState<'single' | 'balanced' | 'max_savings'>('balanced');
   const [showConstraintsModal, setShowConstraintsModal] = useState(false);
+  const [showSurveyModal, setShowSurveyModal] = useState(false);
+  const [surveyDismissed, setSurveyDismissed] = useState(false);
   const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
   const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
   const [activeRetailers, setActiveRetailers] = useState<string[]>(initialRetailers || ALL_RETAILER_LIST);
@@ -312,6 +317,49 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
           ✨ Confirm Plan &amp; Order Cart
         </button>
       </div>
+
+      {/* Step 1 - Post Optimization Survey Invitation Card */}
+      {!surveyDismissed && (
+        <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', margin: 'var(--spacing-xl) auto 0', padding: '20px', borderRadius: '18px', textAlign: 'center', border: '1px solid rgba(14, 165, 233, 0.35)', background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(5, 150, 105, 0.05) 100%)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+          <div style={{ fontSize: '1.8rem', marginBottom: '4px' }}>🔬</div>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>Help Improve PriceIQ</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '480px', margin: '0 auto 16px', lineHeight: 1.5 }}>
+            You've just received your optimized shopping plan. Would you be willing to answer a few quick questions (about 2 minutes)? Your responses help improve future shopping recommendations.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button 
+              className="btn-3d"
+              onClick={() => setShowSurveyModal(true)}
+              style={{ padding: '10px 24px', fontSize: '0.95rem' }}>
+              Yes, I'll Help ✨
+            </button>
+            <button 
+              onClick={() => setSurveyDismissed(true)}
+              style={{ padding: '10px 20px', fontSize: '0.95rem', borderRadius: 'var(--radius-md)', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              Maybe Later
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Survey Wizard Modal */}
+      <SurveyWizardModal
+        isOpen={showSurveyModal}
+        onClose={() => {
+          setShowSurveyModal(false);
+          setSurveyDismissed(true);
+        }}
+        context={{
+          baselineTotal: baselineStore.total,
+          optimalTotal: currentPlan?.total || optimalSplit.total,
+          savingsAmount: currentPlan?.savingsAmount || optimalSplit.savingsAmount,
+          savingsPercent: Math.round(((currentPlan?.savingsAmount || optimalSplit.savingsAmount) / baselineStore.total) * 100) || 0,
+          storesCount: currentPlan?.stops || optimalSplit.stores.length,
+          extraMiles: currentPlan?.extraMiles ?? 3.1,
+          extraMinutes: currentPlan?.extraMinutes ?? 9,
+          city: location || 'Austin, TX'
+        }}
+      />
 
       {/* Trip Preferences Modal */}
       {showConstraintsModal && (
