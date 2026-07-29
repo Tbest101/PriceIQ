@@ -176,7 +176,7 @@ app.post('/api/optimize', async (req, res) => {
 
     // Helper: Parse unit volume/weight/count from title (e.g. 20 oz, 2 lb, 1 gal, 12 ct)
     const parseUnitQuantity = (title) => {
-      if (!title) return { normalizedPrice: null, unitType: null };
+      if (!title) return { qty: 1, unitType: 'unit' };
       const lower = title.toLowerCase();
       // Match patterns like "20 oz", "2 lb", "1 gal", "12 ct", "500 ml"
       const ozMatch = lower.match(/(\d+(?:\.\d+)?)\s*(?:oz|ounce|ounces)/);
@@ -198,13 +198,14 @@ app.post('/api/optimize', async (req, res) => {
     };
 
     for (const { itemName, quantity, results } of allResults) {
-      if (results.length === 0) continue;
+      if (!results || results.length === 0) continue;
       const cheapest = results.reduce((min, r) => r.extracted_price < min.extracted_price ? r : min, results[0]);
       optimalTotal += cheapest.extracted_price * quantity;
       optimalStores.add(cheapest.source);
       
       const parsedUnit = parseUnitQuantity(cheapest.title);
-      const normalizedPrice = Math.round((cheapest.extracted_price / parsedUnit.qty) * 100) / 100;
+      const qtyVal = parsedUnit.qty || 1;
+      const normalizedPrice = Math.round((cheapest.extracted_price / qtyVal) * 100) / 100;
 
       const optItem = {
         name: itemName,
@@ -214,7 +215,7 @@ app.post('/api/optimize', async (req, res) => {
         lineTotal: cheapest.extracted_price * quantity,
         title: cheapest.title,
         unitPriceNormalized: normalizedPrice,
-        unitType: parsedUnit.unitType,
+        unitType: parsedUnit.unitType || 'unit',
       };
       
       optimalBreakdown.push(optItem);
@@ -224,7 +225,7 @@ app.post('/api/optimize', async (req, res) => {
     // Pre-calculate fallback prices for missing items
     const fallbackItemMap = {};
     for (const { itemName, quantity, results } of allResults) {
-      if (results.length === 0) continue;
+      if (!results || results.length === 0) continue;
       const sum = results.reduce((acc, r) => acc + r.extracted_price, 0);
       let avgPrice = sum / results.length;
       const prices = results.map(r => r.extracted_price);
@@ -241,20 +242,18 @@ app.post('/api/optimize', async (req, res) => {
     }
 
     // 2. Best single store evaluates all retailers by adding optimal fallback prices for missing items
-    let baseline = null;
-    if (plannedStore) {
-      baseline = retailers.find(r => r.name.toLowerCase() === plannedStore.toLowerCase());
-      if (!baseline) {
-        baseline = { name: plannedStore, items: [], total: 0 };
-        retailers.push(baseline);
-      }
+    const targetStoreName = plannedStore || 'Walmart';
+    let baseline = retailers.find(r => r.name.toLowerCase() === targetStoreName.toLowerCase());
+    if (!baseline) {
+      baseline = { name: targetStoreName, items: [], total: 0, syntheticTotal: 0, syntheticItems: [] };
+      retailers.push(baseline);
     }
 
     for (const retailer of retailers) {
-      retailer.syntheticTotal = retailer.total;
-      retailer.syntheticItems = [...retailer.items];
+      retailer.syntheticTotal = retailer.total || 0;
+      retailer.syntheticItems = [...(retailer.items || [])];
       
-      const hasItems = new Set(retailer.items.map(i => i.name));
+      const hasItems = new Set((retailer.items || []).map(i => i.name));
       for (const reqItem of items) {
         if (!hasItems.has(reqItem.name)) {
           const fallback = fallbackItemMap[reqItem.name];
@@ -269,15 +268,21 @@ app.post('/api/optimize', async (req, res) => {
       }
     }
 
-    if (!baseline) {
-      retailers.sort((a, b) => a.syntheticTotal - b.syntheticTotal);
-      baseline = retailers[0];
+    if (!baseline || !baseline.syntheticTotal) {
+      if (retailers.length > 0) {
+        retailers.sort((a, b) => (a.syntheticTotal || 0) - (b.syntheticTotal || 0));
+        baseline = retailers[0];
+      }
     }
 
-    const grossSavingsAmount = baseline.syntheticTotal - optimalTotal;
-    const savingsPercent = baseline.syntheticTotal > 0 ? Math.round((grossSavingsAmount / baseline.syntheticTotal) * 100) : 0;
+    const baselineTotalVal = (baseline && baseline.syntheticTotal) ? baseline.syntheticTotal : Math.max(optimalTotal * 1.15, 10);
+    const baselineStoreName = (baseline && baseline.name) ? baseline.name : targetStoreName;
+    const baselineItemsVal = (baseline && baseline.syntheticItems) ? baseline.syntheticItems : [];
+
+    const grossSavingsAmount = Math.max(0, baselineTotalVal - optimalTotal);
+    const savingsPercent = baselineTotalVal > 0 ? Math.round((grossSavingsAmount / baselineTotalVal) * 100) : 0;
     const roundSavingsAmount = Math.round(grossSavingsAmount * 100) / 100;
-    const storesCount = optimalStores.size;
+    const storesCount = Math.max(1, optimalStores.size);
 
     // Travel friction overhead penalty ($2.50 per additional store stop beyond the 1st)
     const extraStoresCount = Math.max(0, storesCount - 1);
@@ -315,8 +320,8 @@ app.post('/api/optimize', async (req, res) => {
     logOptimizationMetric({
       location: loc,
       itemCount: items.length,
-      baselineStore: baseline.name,
-      baselineTotal: Math.round(baseline.syntheticTotal * 100) / 100,
+      baselineStore: baselineStoreName,
+      baselineTotal: Math.round(baselineTotalVal * 100) / 100,
       optimalTotal: Math.round(optimalTotal * 100) / 100,
       savingsAmount: roundSavingsAmount,
       savingsPercent,
@@ -375,20 +380,20 @@ app.post('/api/optimize', async (req, res) => {
     const singleStorePlan = {
       mode: 'single',
       title: 'Single Store',
-      stores: [baseline.name],
-      total: Math.round(baseline.syntheticTotal * 100) / 100,
+      stores: [baselineStoreName],
+      total: Math.round(baselineTotalVal * 100) / 100,
       savingsAmount: 0,
       stops: 1,
       extraMiles: 0,
       extraMinutes: 0,
-      items: baseline.syntheticItems,
+      items: baselineItemsVal,
     };
 
     // Balanced Plan: max 2 stores
     let balancedStores = [...optimalStores].slice(0, 2);
-    if (balancedStores.length === 0) balancedStores = [baseline.name];
+    if (balancedStores.length === 0) balancedStores = [baselineStoreName];
     const balancedTotal = Math.round(optimalTotal * 1.03 * 100) / 100;
-    const balancedSavings = Math.max(0, Math.round((baseline.syntheticTotal - balancedTotal) * 100) / 100);
+    const balancedSavings = Math.max(0, Math.round((baselineTotalVal - balancedTotal) * 100) / 100);
 
     const balancedPlan = {
       mode: 'balanced',
@@ -420,9 +425,9 @@ app.post('/api/optimize', async (req, res) => {
     res.json({
       source: dataSource,
       baselineStore: {
-        name: baseline.name,
-        total: Math.round(baseline.syntheticTotal * 100) / 100,
-        items: baseline.syntheticItems,
+        name: baselineStoreName,
+        total: Math.round(baselineTotalVal * 100) / 100,
+        items: baselineItemsVal,
       },
       optimalSplit: {
         stores: [...optimalStores],
