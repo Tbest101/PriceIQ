@@ -94,8 +94,11 @@ function computeLocalOptimizationFallback(
   basket: BasketItem[],
   location: string,
   plannedStore: string,
-  selectedRetailers: string[]
+  selectedRetailers: string[],
+  maxStores: number = 2,
+  maxDistance: number = 7.0
 ): OptimizationResult {
+  void maxDistance;
   const allowedStores = selectedRetailers && selectedRetailers.length > 0 ? selectedRetailers : ALL_RETAILER_LIST;
   const storeCatalog: Record<string, { store: string; price: number }[]> = {
     'banana': [
@@ -221,7 +224,8 @@ function computeLocalOptimizationFallback(
     items: optimalBreakdown.map(i => ({ ...i, store: baselineName }))
   };
 
-  const balancedStoresList = storesArr.slice(0, 2);
+  const targetStoresLimit = Math.min(4, Math.max(1, maxStores));
+  const balancedStoresList = storesArr.slice(0, targetStoresLimit);
   const balancedStoresSet = new Set(balancedStoresList.map(s => s.toLowerCase()));
   const balancedBreakdown: OptimizationItem[] = [];
   let balancedTotalVal = 0;
@@ -313,16 +317,41 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
   const [showConstraintsModal, setShowConstraintsModal] = useState(false);
   const [showSurveyModal, setShowSurveyModal] = useState(false);
   const [surveyDismissed, setSurveyDismissed] = useState(false);
-  const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(2);
-  const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(7.0);
-  const [activeRetailers, setActiveRetailers] = useState<string[]>(initialRetailers || ALL_RETAILER_LIST);
+  const [maxStoresConstraint, setMaxStoresConstraint] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('priceiq_max_stores');
+      return saved ? parseInt(saved, 10) : 2;
+    } catch {
+      return 2;
+    }
+  });
+  const [maxDistanceConstraint, setMaxDistanceConstraint] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('priceiq_max_distance');
+      return saved ? parseFloat(saved) : 7.0;
+    } catch {
+      return 7.0;
+    }
+  });
+  const [activeRetailers, setActiveRetailers] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('priceiq_active_retailers');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      /* ignore storage error */
+    }
+    return initialRetailers || ALL_RETAILER_LIST;
+  });
   const [collapsedStores, setCollapsedStores] = useState<Record<string, boolean>>({});
 
   const toggleStoreCollapse = (storeName: string) => {
     setCollapsedStores(prev => ({ ...prev, [storeName]: !prev[storeName] }));
   };
 
-  const fetchOptimization = useCallback(async (retailerList: string[]) => {
+  const fetchOptimization = useCallback(async (retailerList: string[], overrideStores?: number, overrideDist?: number) => {
+    const curStores = overrideStores !== undefined ? overrideStores : maxStoresConstraint;
+    const curDist = overrideDist !== undefined ? overrideDist : maxDistanceConstraint;
+
     setLoading(true);
     setLoadingStep(0);
     setError(null);
@@ -342,11 +371,18 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
       const response = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, location: location.trim() || undefined, plannedStore, selectedRetailers: retailerList }),
+        body: JSON.stringify({
+          items,
+          location: location.trim() || undefined,
+          plannedStore,
+          selectedRetailers: retailerList,
+          maxStores: curStores,
+          maxDistance: curDist
+        }),
       });
       if (!response.ok) {
         console.warn(`⚠️ API optimization failed with status ${response.status}. Using client-side fallback.`);
-        const fallbackResult = computeLocalOptimizationFallback(basket, location, plannedStore, retailerList);
+        const fallbackResult = computeLocalOptimizationFallback(basket, location, plannedStore, retailerList, curStores, curDist);
         setResult(fallbackResult);
         return;
       }
@@ -354,13 +390,13 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
       setResult(data as OptimizationResult);
     } catch (err: unknown) {
       console.warn('⚠️ Optimization fetch encountered error, using client-side fallback:', err);
-      const fallbackResult = computeLocalOptimizationFallback(basket, location, plannedStore, retailerList);
+      const fallbackResult = computeLocalOptimizationFallback(basket, location, plannedStore, retailerList, curStores, curDist);
       setResult(fallbackResult);
     } finally {
       clearInterval(stepInterval);
       setLoading(false);
     }
-  }, [basket, location, plannedStore]);
+  }, [basket, location, plannedStore, maxStoresConstraint, maxDistanceConstraint]);
 
   useEffect(() => {
     fetchOptimization(activeRetailers);
@@ -829,10 +865,18 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
                     alert('Please select at least one retailer');
                     return;
                   }
+                  try {
+                    localStorage.setItem('priceiq_max_stores', maxStoresConstraint.toString());
+                    localStorage.setItem('priceiq_max_distance', maxDistanceConstraint.toString());
+                    localStorage.setItem('priceiq_active_retailers', JSON.stringify(activeRetailers));
+                  } catch {
+                    /* ignore storage error */
+                  }
+
                   if (maxStoresConstraint === 1) setActiveMode('single');
-                  else if (maxStoresConstraint === 2) setActiveMode('balanced');
-                  else setActiveMode('max_savings');
-                  fetchOptimization(activeRetailers);
+                  else setActiveMode('balanced');
+
+                  fetchOptimization(activeRetailers, maxStoresConstraint, maxDistanceConstraint);
                   setShowConstraintsModal(false);
                 }}
                 style={{ width: '100%', padding: '12px', marginTop: '8px' }}>

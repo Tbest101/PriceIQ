@@ -148,7 +148,7 @@ app.get(['/api/search', '/search'], async (req, res) => {
 
 // POST /api/optimize   body: { items: [{ name: "Organic Bananas", quantity: 2 }, ...] }
 app.post(['/api/optimize', '/optimize'], async (req, res) => {
-  const { items, location, plannedStore, selectedRetailers } = req.body;
+  const { items, location, plannedStore, selectedRetailers, maxStores = 2, maxDistance = 7.0 } = req.body;
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Missing or empty items array' });
   }
@@ -157,6 +157,8 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
   const retailerFilterSet = (Array.isArray(selectedRetailers) && selectedRetailers.length > 0)
     ? selectedRetailers.map(s => s.toLowerCase())
     : null;
+
+  const targetMaxStores = Math.min(4, Math.max(1, parseInt(maxStores) || 2));
 
   try {
     // Search all items in parallel
@@ -432,8 +434,8 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
       items: baselineItemsVal,
     };
 
-    // Balanced Plan: max 2 stores
-    let balancedStores = [...optimalStores].slice(0, 2);
+    // Balanced Plan: max stores based on user constraint
+    let balancedStores = [...optimalStores].slice(0, targetMaxStores);
     if (balancedStores.length === 0) balancedStores = [baselineStoreName];
 
     let balancedTotal = 0;
