@@ -34,9 +34,11 @@ const isClothing = (name: string) => {
   return keywords.some(k => name.toLowerCase().includes(k));
 };
 
+import type { UserProfile } from './AuthModal';
+
 interface Props {
   onOptimize: (items: BasketItem[], location: string, plannedStore: string, selectedRetailers?: string[]) => void;
-  user?: any;
+  user?: UserProfile | null;
 }
 
 const AVAILABLE_RETAILERS = [
@@ -94,7 +96,7 @@ export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
-  }, [search]);
+  }, [search, location]);
 
   const handleAddDefault = (product: Product) => {
     const defaultSize = isClothing(product.name) ? 'M' : undefined;

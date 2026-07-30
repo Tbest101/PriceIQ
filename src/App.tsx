@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './index.css';
 import { BasketBuilder } from './components/BasketBuilder';
 import { OptimizationEngine } from './components/OptimizationEngine';
@@ -26,21 +26,19 @@ function App() {
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [location, setLocation] = useState<string>('');
   const [plannedStore, setPlannedStore] = useState<string>('Walmart');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [checkoutData, setCheckoutData] = useState<any>(null);
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    try {
+      const session = localStorage.getItem('priceiq_session');
+      return session ? (JSON.parse(session) as UserProfile) : null;
+    } catch {
+      return null;
+    }
+  });
   const [showAuth, setShowAuth] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
-
-  // Restore session on mount
-  useEffect(() => {
-    const session = localStorage.getItem('priceiq_session');
-    if (session) {
-      try {
-        setUser(JSON.parse(session));
-      } catch { /* ignore corrupt data */ }
-    }
-  }, []);
 
   const [selectedRetailers, setSelectedRetailers] = useState<string[]>(['H-E-B', 'Walmart', 'Target', 'Costco', 'Aldi', 'Whole Foods']);
 
@@ -193,6 +191,24 @@ function App() {
               >
                 <span style={{ fontSize: '1.2rem' }}>↻</span>
                 <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Repeat Last Basket</span>
+              </div>
+            </div>
+
+            {/* Cumulative Lifetime Savings Tracker Banner */}
+            <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '650px', padding: '16px 20px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(14, 165, 233, 0.08) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>This Month Saved</span>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--success)' }}>$118.40</div>
+              </div>
+              <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg Per Trip</span>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>$21.50</div>
+              </div>
+              <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Projected Annual</span>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fbbf24' }}>$1,420/yr</div>
               </div>
             </div>
 

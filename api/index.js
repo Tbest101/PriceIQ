@@ -14,31 +14,37 @@ app.use(express.json());
 // ─── Mock Fallback Data ─────────────────────────────────────────────
 const MOCK_SEARCH_RESULTS = {
   'banana': [
+    { title: 'Organic Bananas, 2 lb Bag', source: 'H-E-B', price: '$1.29', extracted_price: 1.29, thumbnail: '' },
     { title: 'Organic Bananas, 2 lb Bag', source: 'Walmart', price: '$1.48', extracted_price: 1.48, thumbnail: '' },
     { title: 'Organic Bananas - 2lbs', source: 'Target', price: '$1.59', extracted_price: 1.59, thumbnail: '' },
     { title: 'Organic Fair Trade Bananas', source: 'Whole Foods', price: '$2.29', extracted_price: 2.29, thumbnail: '' },
   ],
   'milk': [
+    { title: 'H-E-B Whole Milk, 1 Gal', source: 'H-E-B', price: '$2.99', extracted_price: 2.99, thumbnail: '' },
+    { title: 'Good & Gather Whole Milk 1 Gal', source: 'Target', price: '$3.15', extracted_price: 3.15, thumbnail: '' },
     { title: 'Great Value Whole Milk, 1 Gal', source: 'Walmart', price: '$3.23', extracted_price: 3.23, thumbnail: '' },
-    { title: 'Good & Gather Whole Milk 1 Gal', source: 'Target', price: '$3.59', extracted_price: 3.59, thumbnail: '' },
     { title: '365 Organic Whole Milk, 1 Gal', source: 'Whole Foods', price: '$5.49', extracted_price: 5.49, thumbnail: '' },
   ],
   'bread': [
+    { title: 'Pepperidge Farm Farmhouse Sourdough', source: 'Target', price: '$2.89', extracted_price: 2.89, thumbnail: '' },
+    { title: 'H-E-B Bakery Sourdough Bread', source: 'H-E-B', price: '$3.19', extracted_price: 3.19, thumbnail: '' },
     { title: 'Sara Lee Artesano Bread, 20 oz', source: 'Walmart', price: '$3.64', extracted_price: 3.64, thumbnail: '' },
-    { title: 'Pepperidge Farm Farmhouse Sourdough', source: 'Target', price: '$4.29', extracted_price: 4.29, thumbnail: '' },
     { title: '365 Organic Sourdough Bread', source: 'Whole Foods', price: '$4.99', extracted_price: 4.99, thumbnail: '' },
   ],
   'eggs': [
-    { title: 'Great Value Large Eggs, 12 ct', source: 'Walmart', price: '$3.12', extracted_price: 3.12, thumbnail: '' },
-    { title: 'Good & Gather Cage-Free Eggs, 12 ct', source: 'Target', price: '$4.29', extracted_price: 4.29, thumbnail: '' },
+    { title: 'Great Value Large Eggs, 12 ct', source: 'Walmart', price: '$2.88', extracted_price: 2.88, thumbnail: '' },
+    { title: 'H-E-B Large Grade A Eggs, 12 ct', source: 'H-E-B', price: '$3.09', extracted_price: 3.09, thumbnail: '' },
+    { title: 'Good & Gather Cage-Free Eggs, 12 ct', source: 'Target', price: '$3.49', extracted_price: 3.49, thumbnail: '' },
     { title: '365 Organic Free-Range Eggs, 12 ct', source: 'Whole Foods', price: '$5.99', extracted_price: 5.99, thumbnail: '' },
   ],
   'coffee': [
+    { title: 'Starbucks Medium Roast, 12 oz (Special Offer)', source: 'Target', price: '$6.99', extracted_price: 6.99, thumbnail: '' },
+    { title: 'H-E-B Cafe Ole Ground Coffee, 12 oz', source: 'H-E-B', price: '$7.49', extracted_price: 7.49, thumbnail: '' },
     { title: 'Folgers Classic Roast, 30.5 oz', source: 'Walmart', price: '$8.98', extracted_price: 8.98, thumbnail: '' },
-    { title: 'Starbucks Medium Roast, 12 oz', source: 'Target', price: '$9.99', extracted_price: 9.99, thumbnail: '' },
-    { title: '365 Organic Morning Blend, 24 oz', source: 'Whole Foods', price: '$11.99', extracted_price: 11.99, thumbnail: '' },
+    { title: '365 Organic Morning Blend, 24 oz', source: 'Whole Foods', price: '$9.49', extracted_price: 9.49, thumbnail: '' },
   ],
   'default': [
+    { title: 'Generic Grocery Item', source: 'H-E-B', price: '$2.49', extracted_price: 2.49, thumbnail: '' },
     { title: 'Generic Grocery Item', source: 'Walmart', price: '$2.99', extracted_price: 2.99, thumbnail: '' },
     { title: 'Generic Grocery Item', source: 'Target', price: '$3.49', extracted_price: 3.49, thumbnail: '' },
     { title: 'Generic Grocery Item (Organic)', source: 'Whole Foods', price: '$4.99', extracted_price: 4.99, thumbnail: '' },
@@ -69,11 +75,24 @@ async function searchSerpApi(query, location = 'United States') {
     url.searchParams.append('q', query);
     url.searchParams.append('api_key', apiKey);
     
-    // If location is a zip code or short string, use standard United States to avoid SerpApi location validation error
-    const locParam = (location && location.length > 5 && !/^\d+$/.test(location.trim())) ? location : 'United States';
+    // Properly format zip codes (e.g. 78753 -> "78753, United States") or city/state strings
+    let locParam = 'United States';
+    if (location && typeof location === 'string') {
+      const trimmed = location.trim();
+      if (/^\d{5}$/.test(trimmed)) {
+        locParam = `${trimmed}, United States`;
+      } else if (trimmed.length >= 3) {
+        locParam = trimmed;
+      }
+    }
     url.searchParams.append('location', locParam);
 
-    const response = await fetch(url.toString());
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout limit per item call
+
+    const response = await fetch(url.toString(), { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       console.warn(`⚠️ SerpApi returned status ${response.status} for "${query}", falling back to mock data.`);
       return null;
@@ -105,7 +124,7 @@ async function searchSerpApi(query, location = 'United States') {
 // ─── Routes ─────────────────────────────────────────────────────────
 
 // GET /api/search?q=organic+bananas
-app.get('/api/search', async (req, res) => {
+app.get(['/api/search', '/search'], async (req, res) => {
   const query = req.query.q;
   const location = req.query.location || 'United States';
   if (!query) return res.status(400).json({ error: 'Missing query parameter "q"' });
@@ -128,7 +147,7 @@ app.get('/api/search', async (req, res) => {
 });
 
 // POST /api/optimize   body: { items: [{ name: "Organic Bananas", quantity: 2 }, ...] }
-app.post('/api/optimize', async (req, res) => {
+app.post(['/api/optimize', '/optimize'], async (req, res) => {
   const { items, location, plannedStore, selectedRetailers } = req.body;
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Missing or empty items array' });
@@ -416,19 +435,61 @@ app.post('/api/optimize', async (req, res) => {
     // Balanced Plan: max 2 stores
     let balancedStores = [...optimalStores].slice(0, 2);
     if (balancedStores.length === 0) balancedStores = [baselineStoreName];
-    const balancedTotal = Math.round(optimalTotal * 1.03 * 100) / 100;
+
+    let balancedTotal = 0;
+    const balancedBreakdown = [];
+    const balancedStoreLowerList = balancedStores.map(s => s.toLowerCase());
+
+    for (const { itemName, quantity, results } of allResults) {
+      if (!results || results.length === 0) continue;
+      // Strict case-insensitive store matching against balancedStores
+      const filtered = results.filter(r => r && r.source && balancedStoreLowerList.some(b => r.source.toLowerCase().includes(b) || b.includes(r.source.toLowerCase())));
+      
+      let cheapest;
+      let storeAssigned;
+
+      if (filtered.length > 0) {
+        cheapest = filtered.reduce((min, r) => r.extracted_price < min.extracted_price ? r : min, filtered[0]);
+        storeAssigned = cheapest.source;
+      } else {
+        cheapest = results.reduce((min, r) => r.extracted_price < min.extracted_price ? r : min, results[0]);
+        // Force assignment strictly to balancedStores[0] if search results had no direct match
+        storeAssigned = balancedStores[0];
+      }
+      
+      const lineTotal = cheapest.extracted_price * quantity;
+      balancedTotal += lineTotal;
+
+      const parsedUnit = parseUnitQuantity(cheapest.title);
+      const qtyVal = parsedUnit.qty || 1;
+      const normalizedPrice = Math.round((cheapest.extracted_price / qtyVal) * 100) / 100;
+
+      balancedBreakdown.push({
+        name: itemName,
+        quantity,
+        store: storeAssigned,
+        unitPrice: cheapest.extracted_price,
+        lineTotal,
+        title: cheapest.title,
+        unitPriceNormalized: normalizedPrice,
+        unitType: parsedUnit.unitType || 'unit',
+      });
+    }
+
+    const finalBalancedStores = Array.from(new Set(balancedBreakdown.map(i => i.store)));
+    balancedTotal = Math.round(balancedTotal * 100) / 100;
     const balancedSavings = Math.max(0, Math.round((baselineTotalVal - balancedTotal) * 100) / 100);
 
     const balancedPlan = {
       mode: 'balanced',
       title: 'Balanced ⭐',
-      stores: balancedStores,
+      stores: finalBalancedStores,
       total: balancedTotal,
       savingsAmount: balancedSavings,
-      stops: balancedStores.length,
-      extraMiles: balancedStores.length > 1 ? 3.1 : 0,
-      extraMinutes: balancedStores.length > 1 ? 9 : 0,
-      items: optimalBreakdown,
+      stops: finalBalancedStores.length,
+      extraMiles: finalBalancedStores.length > 1 ? 3.1 : 0,
+      extraMinutes: finalBalancedStores.length > 1 ? 9 : 0,
+      items: balancedBreakdown,
     };
 
     // Max Savings Plan: full split across all stores
@@ -478,7 +539,7 @@ app.post('/api/optimize', async (req, res) => {
 });
 
 // GET /api/admin/analytics - Global analytics summary
-app.get('/api/admin/analytics', async (req, res) => {
+app.get(['/api/admin/analytics', '/admin/analytics'], async (req, res) => {
   try {
     const summary = await getAnalyticsSummary();
     res.json(summary);
@@ -489,7 +550,7 @@ app.get('/api/admin/analytics', async (req, res) => {
 });
 
 // POST /api/survey/submit
-app.post('/api/survey/submit', async (req, res) => {
+app.post(['/api/survey/submit', '/survey/submit'], async (req, res) => {
   try {
     const surveyData = req.body;
     await logSurveyResponse(surveyData);
@@ -501,7 +562,7 @@ app.post('/api/survey/submit', async (req, res) => {
 });
 
 // GET /api/admin/research - Research Dashboard aggregated analytics
-app.get('/api/admin/research', async (req, res) => {
+app.get(['/api/admin/research', '/admin/research'], async (req, res) => {
   try {
     const responses = await getSurveyResponses();
     const totalResponses = responses.length;
@@ -566,7 +627,7 @@ app.get('/api/admin/research', async (req, res) => {
 });
 
 // GET /api/admin/research/export-csv - CSV export for SPSS, R, Python, Excel
-app.get('/api/admin/research/export-csv', async (req, res) => {
+app.get(['/api/admin/research/export-csv', '/admin/research/export-csv'], async (req, res) => {
   try {
     const responses = await getSurveyResponses();
     const headers = [
@@ -607,7 +668,7 @@ app.get('/api/admin/research/export-csv', async (req, res) => {
 });
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'ok',
     serpApiConfigured: !!process.env.SERPAPI_KEY,

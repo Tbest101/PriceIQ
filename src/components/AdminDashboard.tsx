@@ -41,13 +41,26 @@ interface AnalyticsSummary {
   }>;
 }
 
+interface ResearchData {
+  totalResponses?: number;
+  recommendationAcceptanceRate?: number;
+  avgSavingsAmount?: number;
+  avgSavingsPercent?: number;
+  avgBasketTotal?: number;
+  avgMinSavingsNeeded?: number;
+  mostValuedFeature?: string;
+  mostCommonConcern?: string;
+  avgRating?: number;
+  responses?: unknown[];
+}
+
 interface Props {
   onBack: () => void;
 }
 
 export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
-  const [researchData, setResearchData] = useState<any>(null);
+  const [researchData, setResearchData] = useState<ResearchData | null>(null);
   const [loading, setLoading] = useState(true);
   const [runningBenchmark, setRunningBenchmark] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +76,9 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
       ]);
       if (res1.ok) setData(await res1.json());
       if (res2.ok) setResearchData(await res2.json());
-    } catch (err: any) {
-      setError(err.message || 'Failed to load analytics data.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load analytics data.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -79,7 +93,7 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     try {
       // Refresh analytics after running
       await fetchAnalytics();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setRunningBenchmark(false);

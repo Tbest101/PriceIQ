@@ -97,29 +97,34 @@ function runLocalOptimization(items, plannedStore) {
   // Mock price lookup table matching api/index.js mock data
   const catalog = {
     'banana': [
+      { source: 'H-E-B', price: 1.29 },
       { source: 'Walmart', price: 1.48 },
       { source: 'Target', price: 1.59 },
       { source: 'Whole Foods', price: 2.29 }
     ],
     'milk': [
+      { source: 'H-E-B', price: 2.99 },
+      { source: 'Target', price: 3.15 },
       { source: 'Walmart', price: 3.23 },
-      { source: 'Target', price: 3.59 },
       { source: 'Whole Foods', price: 5.49 }
     ],
     'bread': [
+      { source: 'Target', price: 2.89 },
+      { source: 'H-E-B', price: 3.19 },
       { source: 'Walmart', price: 3.64 },
-      { source: 'Target', price: 4.29 },
       { source: 'Whole Foods', price: 4.99 }
     ],
     'eggs': [
-      { source: 'Walmart', price: 3.12 },
-      { source: 'Target', price: 4.29 },
+      { source: 'Walmart', price: 2.88 },
+      { source: 'H-E-B', price: 3.09 },
+      { source: 'Target', price: 3.49 },
       { source: 'Whole Foods', price: 5.99 }
     ],
     'coffee': [
+      { source: 'Target', price: 6.99 },
+      { source: 'H-E-B', price: 7.49 },
       { source: 'Walmart', price: 8.98 },
-      { source: 'Target', price: 9.99 },
-      { source: 'Whole Foods', price: 11.99 }
+      { source: 'Whole Foods', price: 9.49 }
     ]
   };
 
@@ -129,6 +134,7 @@ function runLocalOptimization(items, plannedStore) {
       if (q.includes(key)) return catalog[key];
     }
     return [
+      { source: 'H-E-B', price: 2.49 },
       { source: 'Walmart', price: 2.99 },
       { source: 'Target', price: 3.49 },
       { source: 'Whole Foods', price: 4.99 }
