@@ -71,8 +71,8 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     setError(null);
     try {
       const [res1, res2] = await Promise.all([
-        fetch('/api/admin/analytics'),
-        fetch('/api/admin/research')
+        fetch('/api/analytics-summary'),
+        fetch('/api/research-summary')
       ]);
       if (res1.ok) setData(await res1.json());
       if (res2.ok) setResearchData(await res2.json());
@@ -89,13 +89,47 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
   }, []);
 
   const handleResetAllData = async () => {
-    if (!confirm('Are you sure you want to reset all analytics and research survey data to zero? Live entries will populate as new entries come in.')) return;
+    if (!window.confirm('Clear all stored analytics and survey responses back to 0? New entries will populate live as users run optimizations and submit surveys.')) return;
     setLoading(true);
     try {
-      await fetch('/api/admin/reset', { method: 'POST' });
+      await fetch('/api/reset-data', { method: 'POST' });
       localStorage.removeItem('priceiq_savings_history');
-      await fetchAnalytics();
-    } catch {
+      localStorage.removeItem('priceiq_last_basket');
+      
+      // Reset state locally immediately
+      setData({
+        totalBaskets: 0,
+        averageSavingsAmount: 0,
+        medianSavingsAmount: 0,
+        averageSavingsPercent: 0,
+        medianSavingsPercent: 0,
+        rangeSavingsAmount: { min: 0, max: 0 },
+        rangeSavingsPercent: { min: 0, max: 0 },
+        improvedCount: 0,
+        improvedPercentage: 0,
+        notWorthwhileCount: 0,
+        notWorthwhilePercentage: 0,
+        geographicDifferences: [],
+        categoryDifferences: [],
+        badResults: []
+      });
+
+      setResearchData({
+        totalResponses: 0,
+        avgSavingsAmount: 0,
+        avgSavingsPercent: 0,
+        avgBasketTotal: 0,
+        recommendationAcceptanceRate: 0,
+        avgMinSavingsNeeded: 0,
+        mostCommonConcern: 'None yet',
+        mostValuedFeature: 'None yet',
+        avgRating: 0,
+        responses: []
+      });
+
+      alert('✅ Reset successful! All analytics & survey data are now at 0. As soon as live entries come in, they will populate here in real-time.');
+    } catch (err: unknown) {
+      console.error(err);
       setError('Failed to reset analytics data.');
     } finally {
       setLoading(false);

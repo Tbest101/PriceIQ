@@ -540,8 +540,8 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
   }
 });
 
-// GET /api/admin/analytics - Global analytics summary
-app.get(['/api/admin/analytics', '/admin/analytics'], async (req, res) => {
+// GET /api/admin/analytics & /api/analytics-summary - Global analytics summary
+app.get(['/api/admin/analytics', '/admin/analytics', '/api/analytics-summary'], async (req, res) => {
   try {
     const summary = await getAnalyticsSummary();
     res.json(summary);
@@ -563,8 +563,8 @@ app.post(['/api/survey/submit', '/survey/submit'], async (req, res) => {
   }
 });
 
-// GET /api/admin/research - Research Dashboard aggregated analytics
-app.get(['/api/admin/research', '/admin/research'], async (req, res) => {
+// GET /api/admin/research & /api/research-summary - Research Dashboard aggregated analytics
+app.get(['/api/admin/research', '/admin/research', '/api/research-summary'], async (req, res) => {
   try {
     const responses = await getSurveyResponses();
     const totalResponses = responses.length;
@@ -628,8 +628,8 @@ app.get(['/api/admin/research', '/admin/research'], async (req, res) => {
   }
 });
 
-// GET /api/admin/research/export-csv - CSV export for SPSS, R, Python, Excel
-app.get(['/api/admin/research/export-csv', '/admin/research/export-csv'], async (req, res) => {
+// GET /api/research-export-csv - CSV export for SPSS, R, Python, Excel
+app.get(['/api/admin/research/export-csv', '/admin/research/export-csv', '/api/research-export-csv'], async (req, res) => {
   try {
     const responses = await getSurveyResponses();
     const headers = [
@@ -669,8 +669,8 @@ app.get(['/api/admin/research/export-csv', '/admin/research/export-csv'], async 
   }
 });
 
-// POST /api/admin/reset - Reset all analytics and survey data to zero
-app.post(['/api/admin/reset', '/admin/reset'], async (req, res) => {
+// POST /api/reset-data - Reset all analytics and survey data to zero
+app.post(['/api/admin/reset', '/admin/reset', '/api/reset-data'], async (req, res) => {
   try {
     await resetAnalyticsDb();
     res.json({ success: true, message: 'All analytics and research survey data have been reset to zero.' });
