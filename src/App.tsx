@@ -260,21 +260,8 @@ function App() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.1)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.1)', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
                 <span>{totalTripsCount === 0 ? '💡 Complete a checkout to track your live household savings' : `📊 Calculated live across ${totalTripsCount} completed trip${totalTripsCount > 1 ? 's' : ''}`}</span>
-                <button 
-                  onClick={() => {
-                    if (confirm('Reset your savings tracker history to $0.00?')) {
-                      setSavingsHistory([]);
-                      localStorage.removeItem('priceiq_savings_history');
-                    }
-                  }}
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.72rem', transition: 'all 0.2s' }}
-                  onMouseOver={e => e.currentTarget.style.color = '#ef4444'}
-                  onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
-                >
-                  🔄 Reset Tracker
-                </button>
               </div>
             </div>
 

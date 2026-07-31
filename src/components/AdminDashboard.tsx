@@ -110,53 +110,7 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     fetchAnalytics();
   }, []);
 
-  const handleResetAllData = async () => {
-    if (!window.confirm('Clear all stored analytics and survey responses back to 0? New entries will populate live as users run optimizations and submit surveys.')) return;
-    setLoading(true);
-    try {
-      await fetch('/api/reset-data', { method: 'POST' });
-      localStorage.removeItem('priceiq_savings_history');
-      localStorage.removeItem('priceiq_last_basket');
-      
-      // Reset state locally immediately
-      setData({
-        totalBaskets: 0,
-        averageSavingsAmount: 0,
-        medianSavingsAmount: 0,
-        averageSavingsPercent: 0,
-        medianSavingsPercent: 0,
-        rangeSavingsAmount: { min: 0, max: 0 },
-        rangeSavingsPercent: { min: 0, max: 0 },
-        improvedCount: 0,
-        improvedPercentage: 0,
-        notWorthwhileCount: 0,
-        notWorthwhilePercentage: 0,
-        geographicDifferences: [],
-        categoryDifferences: [],
-        badResults: []
-      });
 
-      setResearchData({
-        totalResponses: 0,
-        avgSavingsAmount: 0,
-        avgSavingsPercent: 0,
-        avgBasketTotal: 0,
-        recommendationAcceptanceRate: 0,
-        avgMinSavingsNeeded: 0,
-        mostCommonConcern: 'None yet',
-        mostValuedFeature: 'None yet',
-        avgRating: 0,
-        responses: []
-      });
-
-      alert('✅ Reset successful! All analytics & survey data are now at 0. As soon as live entries come in, they will populate here in real-time.');
-    } catch (err: unknown) {
-      console.error(err);
-      setError('Failed to reset analytics data.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const triggerBenchmark = async () => {
     setRunningBenchmark(true);
@@ -211,21 +165,6 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             style={{ padding: '8px 16px', borderRadius: 'var(--radius-md)', fontWeight: 500, fontSize: '0.9rem', cursor: 'pointer' }}
           >
             🔄 Refresh
-          </button>
-          <button
-            onClick={handleResetAllData}
-            style={{
-              background: 'rgba(239, 68, 68, 0.15)',
-              border: '1px solid rgba(239, 68, 68, 0.4)',
-              color: '#ef4444',
-              padding: '8px 16px',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            🧹 Reset All Data to $0
           </button>
           <button
             onClick={triggerBenchmark}
