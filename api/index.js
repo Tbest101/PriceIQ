@@ -669,16 +669,7 @@ app.get(['/api/admin/research/export-csv', '/admin/research/export-csv', '/api/r
   }
 });
 
-// POST /api/reset-data - Reset all analytics and survey data to zero
-app.post(['/api/admin/reset', '/admin/reset', '/api/reset-data'], async (req, res) => {
-  try {
-    await resetAnalyticsDb();
-    res.json({ success: true, message: 'All analytics and research survey data have been reset to zero.' });
-  } catch (err) {
-    console.error('❌ Reset analytics error:', err.message);
-    res.status(500).json({ error: 'Failed to reset analytics data', details: err.message });
-  }
-});
+
 app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'ok',

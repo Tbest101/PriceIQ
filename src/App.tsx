@@ -209,16 +209,7 @@ function App() {
 
             {/* Quick Actions Bar */}
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: 'var(--spacing-md)' }}>
-              <div 
-                className="glass-panel" 
-                onClick={() => setView('basket')}
-                style={{ padding: '12px 20px', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
-                onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
-                onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
-              >
-                <span style={{ fontSize: '1.2rem' }}>＋</span>
-                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Build a Basket</span>
-              </div>
+
               <div 
                 className="glass-panel" 
                 onClick={() => setShowReceiptModal(true)}
