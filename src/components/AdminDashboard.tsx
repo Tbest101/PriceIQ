@@ -297,15 +297,17 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Participants / Responses</span>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
-                {researchData?.totalResponses || 248}
+                {researchData?.totalResponses ?? 0}
               </div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 600 }}>Active Pilot Study</span>
+              <span style={{ fontSize: '0.78rem', color: (researchData?.totalResponses ?? 0) > 0 ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600 }}>
+                {(researchData?.totalResponses ?? 0) > 0 ? 'Active Pilot Study' : 'No Responses Yet'}
+              </span>
             </div>
 
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Recommendation Acceptance Rate</span>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>
-                {researchData?.recommendationAcceptanceRate || 84}%
+                {researchData?.recommendationAcceptanceRate ?? 0}%
               </div>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Users Likely or Very Likely to use</span>
             </div>
@@ -313,15 +315,15 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Average Savings</span>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
-                ${researchData?.avgSavingsAmount || 13.82} <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>({researchData?.avgSavingsPercent || 7.6}%)</span>
+                ${(researchData?.avgSavingsAmount ?? 0).toFixed(2)} <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>({(researchData?.avgSavingsPercent ?? 0).toFixed(1)}%)</span>
               </div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Avg Basket: ${researchData?.avgBasketTotal || 176.40}</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Avg Basket: ${(researchData?.avgBasketTotal ?? 0).toFixed(2)}</span>
             </div>
 
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Min Savings Needed per Extra Store</span>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
-                ${researchData?.avgMinSavingsNeeded || 11.50}
+                ${(researchData?.avgMinSavingsNeeded ?? 0).toFixed(2)}
               </div>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Threshold before multi-store trip</span>
             </div>
@@ -332,21 +334,21 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Most Valued Benefit</span>
               <h4 style={{ fontSize: '1.3rem', color: 'var(--primary)', margin: '6px 0 0 0' }}>
-                {researchData?.mostValuedFeature || 'Lower Grocery Cost'}
+                {researchData?.mostValuedFeature || 'None yet'}
               </h4>
             </div>
 
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Primary Discouraging Concern</span>
               <h4 style={{ fontSize: '1.3rem', color: '#fbbf24', margin: '6px 0 0 0' }}>
-                {researchData?.mostCommonConcern || 'Extra Travel'}
+                {researchData?.mostCommonConcern || 'None yet'}
               </h4>
             </div>
 
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Average Recommendation Clarity</span>
               <h4 style={{ fontSize: '1.3rem', color: '#38bdf8', margin: '6px 0 0 0' }}>
-                ⭐ {researchData?.avgRating || 4.6} / 5.0 Rating
+                ⭐ {researchData?.avgRating ? researchData.avgRating.toFixed(1) : '0.0'} / 5.0 Rating
               </h4>
             </div>
           </div>
@@ -376,20 +378,24 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--spacing-md)' }}>
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>This Week's Savings</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>$18.42</div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Across 2 basket runs</span>
+              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>${personalThisWeek.toFixed(2)}</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                {personalHistory.filter(r => (Date.now() - r.timestamp) <= 7 * 24 * 60 * 60 * 1000).length} basket run(s)
+              </span>
             </div>
             
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>This Month's Savings</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>$67.81</div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>8 baskets optimized</span>
+              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>${personalThisMonth.toFixed(2)}</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                {personalHistory.filter(r => { const d = new Date(r.timestamp); const now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length} baskets optimized
+              </span>
             </div>
 
             <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Savings Since Joining</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>$241.36</div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>28 baskets optimized</span>
+              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>${personalTotalSavings.toFixed(2)}</div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{personalCount} baskets optimized</span>
             </div>
           </div>
 
@@ -397,18 +403,20 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-md)' }}>
             <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(14, 165, 233, 0.05) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🏆</div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>Austin Shopper Leaderboard</h3>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>Shopper Household Performance</h3>
               <p style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '1.05rem', margin: 0 }}>
-                You saved more than 72% of PriceIQ shoppers in Austin this month!
+                {personalCount === 0 
+                  ? 'Complete your first basket optimization to establish your household savings benchmark!'
+                  : `You've saved $${personalTotalSavings.toFixed(2)} across ${personalCount} trip(s)!`}
               </p>
             </div>
 
             <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>💳</div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>PriceIQ Premium ROI Proof</h3>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '6px', color: 'var(--text-main)' }}>PriceIQ Household Net ROI</h3>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                PriceIQ Premium Cost: <strong style={{ color: 'var(--text-main)' }}>$4.99/mo</strong><br/>
-                Additional Net Savings Generated: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>+$31.72 this month</strong>
+                PriceIQ Service Cost: <strong style={{ color: 'var(--text-main)' }}>Free / Premium $0.00</strong><br/>
+                Net Household Savings: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>+${personalThisMonth.toFixed(2)} this month</strong>
               </div>
             </div>
           </div>
