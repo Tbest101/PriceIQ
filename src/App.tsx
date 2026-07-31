@@ -21,6 +21,14 @@ const DEFAULT_REPEAT_BASKET: BasketItem[] = [
   { product: { id: 'p7', name: 'Tide Liquid Laundry Detergent 92oz', category: 'Household', defaultPrice: 12.99, barcode: '011110416007' }, quantity: 1 }
 ];
 
+interface SavingsRecord {
+  id: string;
+  timestamp: number;
+  savingsAmount: number;
+  totalSpent: number;
+  stops: number;
+}
+
 function App() {
   const [view, setView] = useState<'home' | 'basket' | 'optimization' | 'checkout' | 'admin'>('home');
   const [basket, setBasket] = useState<BasketItem[]>([]);
@@ -36,11 +44,50 @@ function App() {
       return null;
     }
   });
+  const [savingsHistory, setSavingsHistory] = useState<SavingsRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('priceiq_savings_history');
+      return saved ? (JSON.parse(saved) as SavingsRecord[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const [showAuth, setShowAuth] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   const [selectedRetailers, setSelectedRetailers] = useState<string[]>(['H-E-B', 'Walmart', 'Target', 'Costco', 'Aldi', 'Whole Foods']);
+
+  const recordCheckoutSavings = (data: { savingsAmount?: number; total?: number; stops?: number }) => {
+    const amount = typeof data.savingsAmount === 'number' ? data.savingsAmount : 0;
+    const newRecord: SavingsRecord = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      savingsAmount: amount,
+      totalSpent: data.total || 0,
+      stops: data.stops || 1,
+    };
+    setSavingsHistory(prev => {
+      const updated = [newRecord, ...prev];
+      try {
+        localStorage.setItem('priceiq_savings_history', JSON.stringify(updated));
+      } catch { /* ignore */ }
+      return updated;
+    });
+  };
+
+  const totalTripsCount = savingsHistory.length;
+  const thisMonthSavings = savingsHistory
+    .filter(r => {
+      const d = new Date(r.timestamp);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, r) => sum + (r.savingsAmount || 0), 0);
+
+  const totalSavingsAllTime = savingsHistory.reduce((sum, r) => sum + (r.savingsAmount || 0), 0);
+  const avgPerTrip = totalTripsCount > 0 ? totalSavingsAllTime / totalTripsCount : 0;
+  const projectedAnnual = totalTripsCount > 0 ? avgPerTrip * 52 : 0;
 
   const handleOptimize = (items: BasketItem[], loc: string, store: string, retailers?: string[]) => {
     setBasket(items);
@@ -194,21 +241,39 @@ function App() {
               </div>
             </div>
 
-            {/* Cumulative Lifetime Savings Tracker Banner */}
-            <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '650px', padding: '16px 20px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(14, 165, 233, 0.08) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>This Month Saved</span>
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--success)' }}>$118.40</div>
+            {/* Dynamic Cumulative Lifetime Savings Tracker Banner */}
+            <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '650px', padding: '18px 22px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(14, 165, 233, 0.08) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '16px', width: '100%' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>This Month Saved</span>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--success)' }}>${thisMonthSavings.toFixed(2)}</div>
+                </div>
+                <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg Per Trip</span>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>${avgPerTrip.toFixed(2)}</div>
+                </div>
+                <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Projected Annual</span>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fbbf24' }}>${Math.round(projectedAnnual).toLocaleString()}/yr</div>
+                </div>
               </div>
-              <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg Per Trip</span>
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>$21.50</div>
-              </div>
-              <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Projected Annual</span>
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fbbf24' }}>$1,420/yr</div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.1)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                <span>{totalTripsCount === 0 ? '💡 Complete a checkout to track your live household savings' : `📊 Calculated live across ${totalTripsCount} completed trip${totalTripsCount > 1 ? 's' : ''}`}</span>
+                {totalTripsCount > 0 && (
+                  <button 
+                    onClick={() => {
+                      if (confirm('Reset your savings tracker history to $0.00?')) {
+                        setSavingsHistory([]);
+                        localStorage.removeItem('priceiq_savings_history');
+                      }
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.72rem', textDecoration: 'underline' }}>
+                    Reset Tracker
+                  </button>
+                )}
               </div>
             </div>
 
@@ -266,6 +331,7 @@ function App() {
             selectedRetailers={selectedRetailers} 
             onBack={() => setView('basket')} 
             onConfirm={(optimalSplit) => {
+              recordCheckoutSavings(optimalSplit);
               setCheckoutData(optimalSplit);
               setView('checkout');
             }}
@@ -273,7 +339,13 @@ function App() {
         )}
 
         {view === 'checkout' && checkoutData && (
-          <RouteConfirmation optimalSplit={checkoutData} onBack={() => setView('optimization')} />
+          <RouteConfirmation 
+            optimalSplit={checkoutData} 
+            onBack={() => setView('optimization')}
+            onPlaceOrder={() => {
+              recordCheckoutSavings(checkoutData);
+            }} 
+          />
         )}
 
         {view === 'admin' && (
