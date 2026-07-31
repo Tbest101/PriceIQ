@@ -168,27 +168,19 @@ export async function getAnalyticsSummary() {
 
   if (records.length === 0) {
     return {
-      totalBaskets: 42,
-      averageSavingsAmount: 14.85,
-      medianSavingsAmount: 13.20,
-      averageSavingsPercent: 8.4,
-      medianSavingsPercent: 7.9,
-      rangeSavingsAmount: { min: 4.10, max: 32.50 },
-      rangeSavingsPercent: { min: 2.5, max: 18.2 },
-      improvedCount: 37,
-      improvedPercentage: 88,
-      notWorthwhileCount: 5,
-      notWorthwhilePercentage: 12,
-      geographicDifferences: [
-        { location: 'Austin, TX', totalBaskets: 24, avgSavingsAmount: 15.40, avgSavingsPercent: 8.7 },
-        { location: 'Dallas, TX', totalBaskets: 12, avgSavingsAmount: 13.90, avgSavingsPercent: 7.9 },
-        { location: 'Houston, TX', totalBaskets: 6, avgSavingsAmount: 14.10, avgSavingsPercent: 8.1 }
-      ],
-      categoryDifferences: [
-        { category: 'Meat & Eggs', itemCount: 38, avgSavingsAmount: 6.20 },
-        { category: 'Pantry', itemCount: 64, avgSavingsAmount: 4.80 },
-        { category: 'Produce', itemCount: 52, avgSavingsAmount: 3.85 }
-      ],
+      totalBaskets: 0,
+      averageSavingsAmount: 0,
+      medianSavingsAmount: 0,
+      averageSavingsPercent: 0,
+      medianSavingsPercent: 0,
+      rangeSavingsAmount: { min: 0, max: 0 },
+      rangeSavingsPercent: { min: 0, max: 0 },
+      improvedCount: 0,
+      improvedPercentage: 0,
+      notWorthwhileCount: 0,
+      notWorthwhilePercentage: 0,
+      geographicDifferences: [],
+      categoryDifferences: [],
       badResults: [],
       records: []
     };
@@ -408,6 +400,37 @@ export async function getSurveyResponses() {
     }
   } else {
     return memoryDb.surveys || [];
+  }
+}
+
+export async function resetAnalyticsDb() {
+  memoryDb = {
+    visits: 0,
+    uniqueUsers: {},
+    optimizations: 0,
+    searches: {},
+    events: [],
+    optimizationMetrics: [],
+    surveys: []
+  };
+  if (useKV) {
+    try {
+      await kvFetch(['DEL', 'stats:optimization_metrics']);
+      await kvFetch(['DEL', 'stats:surveys']);
+      await kvFetch(['DEL', 'stats:total_visits']);
+      await kvFetch(['DEL', 'stats:total_optimizations']);
+      await kvFetch(['DEL', 'stats:events']);
+      await kvFetch(['DEL', 'stats:searches']);
+      await kvFetch(['DEL', 'stats:unique_users']);
+    } catch (err) {
+      console.error('❌ KV reset error:', err.message);
+    }
+  } else {
+    try {
+      fs.writeFileSync(localDbPath, JSON.stringify(memoryDb, null, 2), 'utf8');
+    } catch (err) {
+      console.error('⚠️ Failed to save reset local DB:', err.message);
+    }
   }
 }
 

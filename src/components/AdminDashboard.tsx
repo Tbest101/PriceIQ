@@ -88,6 +88,20 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     fetchAnalytics();
   }, []);
 
+  const handleResetAllData = async () => {
+    if (!confirm('Are you sure you want to reset all analytics and research survey data to zero? Live entries will populate as new entries come in.')) return;
+    setLoading(true);
+    try {
+      await fetch('/api/admin/reset', { method: 'POST' });
+      localStorage.removeItem('priceiq_savings_history');
+      await fetchAnalytics();
+    } catch {
+      setError('Failed to reset analytics data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const triggerBenchmark = async () => {
     setRunningBenchmark(true);
     try {
@@ -128,19 +142,34 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-xl)', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
         <div>
           <button onClick={onBack} style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-xs)', display: 'block' }}>&larr; Back to App</button>
-          <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Analytics & Evaluation Dashboard</h1>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Analytics &amp; Evaluation Dashboard</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-            Collecting benchmark savings, median distributions, geographic/category splits & bad results telemetry.
+            Collecting benchmark savings, median distributions, geographic/category splits &amp; bad results telemetry.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
           <button
             onClick={fetchAnalytics}
             className="glass-panel"
             style={{ padding: '8px 16px', borderRadius: 'var(--radius-md)', fontWeight: 500, fontSize: '0.9rem', cursor: 'pointer' }}
           >
             🔄 Refresh
+          </button>
+          <button
+            onClick={handleResetAllData}
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#ef4444',
+              padding: '8px 16px',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              cursor: 'pointer'
+            }}
+          >
+            🧹 Reset All Data to $0
           </button>
           <button
             onClick={triggerBenchmark}

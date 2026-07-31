@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses } from './db.js';
+import { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses, resetAnalyticsDb } from './db.js';
 
 dotenv.config();
 
@@ -572,14 +572,14 @@ app.get(['/api/admin/research', '/admin/research'], async (req, res) => {
     if (totalResponses === 0) {
       return res.json({
         totalResponses: 0,
-        avgSavingsAmount: 13.82,
-        avgSavingsPercent: 7.6,
-        avgBasketTotal: 176.40,
-        recommendationAcceptanceRate: 84,
-        avgMinSavingsNeeded: 11.50,
-        mostCommonConcern: 'Extra Travel',
-        mostValuedFeature: 'Lower Grocery Cost',
-        avgRating: 4.6,
+        avgSavingsAmount: 0,
+        avgSavingsPercent: 0,
+        avgBasketTotal: 0,
+        recommendationAcceptanceRate: 0,
+        avgMinSavingsNeeded: 0,
+        mostCommonConcern: 'None yet',
+        mostValuedFeature: 'None yet',
+        avgRating: 0,
         responses: []
       });
     }
@@ -669,7 +669,16 @@ app.get(['/api/admin/research/export-csv', '/admin/research/export-csv'], async 
   }
 });
 
-// Health check
+// POST /api/admin/reset - Reset all analytics and survey data to zero
+app.post(['/api/admin/reset', '/admin/reset'], async (req, res) => {
+  try {
+    await resetAnalyticsDb();
+    res.json({ success: true, message: 'All analytics and research survey data have been reset to zero.' });
+  } catch (err) {
+    console.error('❌ Reset analytics error:', err.message);
+    res.status(500).json({ error: 'Failed to reset analytics data', details: err.message });
+  }
+});
 app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'ok',
