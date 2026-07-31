@@ -169,6 +169,8 @@ export async function getAnalyticsSummary() {
   if (records.length === 0) {
     return {
       totalBaskets: 0,
+      totalPlatformSavings: 0,
+      thisMonthPlatformSavings: 0,
       averageSavingsAmount: 0,
       medianSavingsAmount: 0,
       averageSavingsPercent: 0,
@@ -292,8 +294,19 @@ export async function getAnalyticsSummary() {
             'Multi-store drive overhead exceeded savings benefit'
   }));
 
+  const totalPlatformSavings = Math.round(sumAmount * 100) / 100;
+  const thisMonthPlatformSavings = Math.round(records
+    .filter(r => {
+      const d = new Date(r.timestamp);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, r) => sum + (Number(r.savingsAmount) || 0), 0) * 100) / 100;
+
   return {
     totalBaskets,
+    totalPlatformSavings,
+    thisMonthPlatformSavings,
     averageSavingsAmount,
     medianSavingsAmount,
     averageSavingsPercent,
