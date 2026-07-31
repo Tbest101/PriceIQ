@@ -166,9 +166,25 @@ export async function getAnalyticsSummary() {
     records = memoryDb.optimizationMetrics || [];
   }
 
+  let uniqueUserCount = 0;
+  if (useKV) {
+    try {
+      const res = await kvFetch(['SCARD', 'stats:unique_users']);
+      uniqueUserCount = parseInt(res?.result || 0, 10);
+    } catch { /* fallback */ }
+  } else {
+    uniqueUserCount = Object.keys(memoryDb.uniqueUsers || {}).length;
+  }
+
+  const recordUserSet = new Set(records.map(r => r.userId || r.sessionId).filter(Boolean));
+  if (uniqueUserCount < recordUserSet.size) {
+    uniqueUserCount = recordUserSet.size;
+  }
+
   if (records.length === 0) {
     return {
       totalBaskets: 0,
+      uniqueUserCount,
       totalPlatformSavings: 0,
       thisMonthPlatformSavings: 0,
       averageSavingsAmount: 0,
@@ -305,6 +321,7 @@ export async function getAnalyticsSummary() {
 
   return {
     totalBaskets,
+    uniqueUserCount,
     totalPlatformSavings,
     thisMonthPlatformSavings,
     averageSavingsAmount,

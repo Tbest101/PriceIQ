@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 interface AnalyticsSummary {
   totalBaskets: number;
+  uniqueUserCount?: number;
   totalPlatformSavings?: number;
   thisMonthPlatformSavings?: number;
   averageSavingsAmount: number;
@@ -422,14 +423,19 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
           <div className="glass-panel animate-fade-in" style={{ width: '100%', padding: '20px 24px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(14, 165, 233, 0.1) 100%)', border: '1px solid rgba(16, 185, 129, 0.35)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)', fontWeight: 700 }}>
-                🌐 Platform-Wide Cumulative Community Savings (All Users)
+                🌐 Platform-Wide Cumulative Community Impact (All Users)
               </span>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                {data.totalBaskets === 0 ? '0 Baskets Evaluated' : `Calculated live across ${data.totalBaskets} optimized basket(s)`}
+                {data.totalBaskets === 0 ? '0 Baskets Evaluated' : `Live aggregate across ${data.uniqueUserCount ?? 0} unique user(s) & ${data.totalBaskets} shopping trips`}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '16px', width: '100%' }}>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unique Active Users</span>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--secondary)' }}>{data.uniqueUserCount ?? 0}</div>
+              </div>
+              <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
               <div style={{ textAlign: 'center' }}>
                 <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>This Month All-User Saved</span>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--success)' }}>${(data.thisMonthPlatformSavings ?? 0).toFixed(2)}</div>
