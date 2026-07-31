@@ -66,6 +66,28 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'personal' | 'overview' | 'research' | 'bad_results' | 'geo' | 'categories'>('research');
 
+  const personalHistory: Array<{ savingsAmount: number; timestamp: number }> = (() => {
+    try {
+      const saved = localStorage.getItem('priceiq_savings_history');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  })();
+
+  const personalTotalSavings = personalHistory.reduce((sum, r) => sum + (r.savingsAmount || 0), 0);
+  const personalCount = personalHistory.length;
+  const personalThisWeek = personalHistory
+    .filter(r => (Date.now() - r.timestamp) <= 7 * 24 * 60 * 60 * 1000)
+    .reduce((sum, r) => sum + (r.savingsAmount || 0), 0);
+  const personalThisMonth = personalHistory
+    .filter(r => {
+      const d = new Date(r.timestamp);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, r) => sum + (r.savingsAmount || 0), 0);
+
   const fetchAnalytics = async () => {
     setLoading(true);
     setError(null);
