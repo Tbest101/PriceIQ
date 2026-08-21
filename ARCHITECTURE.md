@@ -4,7 +4,7 @@
 PriceIQ is an open, web-based grocery basket price optimization and consumer analytics platform. The application evaluates consumer grocery lists against local retail pricing data to determine optimal purchasing strategies, factoring in price differentials, baseline store comparisons, and multi-store travel friction penalties.
 
 ## Development Note & Attribution
-*Initial implementation accelerated using AI-assisted development tools; architecture, data flow, and optimization logic specified and directed by Sunmola Peter Tobi.*
+*Initial implementation accelerated using AI-assisted development tools; architecture, data flow, and optimization logic specified and directed by Peter Tobi Sunmola.*
 
 ---
 

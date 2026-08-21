@@ -1,13 +1,13 @@
 # PriceIQ Codebase Provenance & Git Development Log
 
 ## Overview
-This document serves as an objective, uncurated record of the software development lifecycle, repository history, and commit provenance for the PriceIQ application repository (`Less4More`).
+This document serves as an objective, uncurated record of the software development lifecycle, repository history, and commit provenance for the PriceIQ application repository.
 
 ## Development Disclosure
-- **Primary Developer / Project Lead**: Sunmola Peter Tobi (`petertobi@Sunmolas-MacBook-Pro.local`)
-- **Development Tooling**: Development execution was accelerated using AI-assisted pair-programming tools under the direct architectural specification, logic definition, and step-by-step supervision of Sunmola Peter Tobi.
+- **Primary Developer / Project Lead**: Peter Tobi Sunmola (`petertobi@Sunmolas-MacBook-Pro.local`)
+- **Development Tooling**: Development execution was accelerated using AI-assisted pair-programming tools under the direct architectural specification, logic definition, and step-by-step supervision of Peter Tobi Sunmola.
 - **Repository Range**: July 27, 2026 – Present
-- **Total Commit Count**: 41+ commits
+- **Total Commit Count**: 42+ commits
 
 ---
 
