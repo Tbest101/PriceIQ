@@ -136,7 +136,10 @@ export async function logOptimizationMetric(metricPayload) {
   if (useKV) {
     try {
       await kvFetch(['LPUSH', 'stats:optimization_metrics', JSON.stringify(entry)]);
-      await kvFetch(['LTRIM', 'stats:optimization_metrics', 0, 499]); // Store up to 500 recent metrics
+      await kvFetch(['LTRIM', 'stats:optimization_metrics', 0, 499]);
+      if (metricPayload.sessionId) {
+        await kvFetch(['SADD', 'stats:unique_users', metricPayload.sessionId]);
+      }
     } catch (err) {
       console.error('❌ KV logOptimizationMetric error:', err.message);
     }
@@ -144,6 +147,10 @@ export async function logOptimizationMetric(metricPayload) {
     if (!memoryDb.optimizationMetrics) memoryDb.optimizationMetrics = [];
     memoryDb.optimizationMetrics.unshift(entry);
     if (memoryDb.optimizationMetrics.length > 500) memoryDb.optimizationMetrics.pop();
+    if (metricPayload.sessionId) {
+      if (!memoryDb.uniqueUsers) memoryDb.uniqueUsers = {};
+      memoryDb.uniqueUsers[metricPayload.sessionId] = new Date().toISOString();
+    }
     saveLocalDb();
   }
   return entry;
@@ -165,6 +172,25 @@ export async function getAnalyticsSummary() {
   } else {
     records = memoryDb.optimizationMetrics || [];
   }
+
+  // Only include data from the time the survey went live (July 29, 2026)
+  const SURVEY_LIVE_DATE = new Date('2026-07-29T00:00:00Z').getTime();
+  records = records.filter(r => {
+    try {
+      return new Date(r.timestamp).getTime() >= SURVEY_LIVE_DATE;
+    } catch {
+      return false;
+    }
+  }).map(r => {
+    const amount = Number(r.savingsAmount) || 0;
+    const isWorthwhile = amount > 0;
+    return {
+      ...r,
+      savingsAmount: amount,
+      isWorthwhile,
+      resultType: isWorthwhile ? ((r.storesCount || 1) <= 1 ? 'SINGLE_STORE_OPTIMAL' : 'IMPROVED') : 'ZERO_SAVINGS'
+    };
+  });
 
   let uniqueUserCount = 0;
   if (useKV) {
@@ -285,13 +311,11 @@ export async function getAnalyticsSummary() {
     medianSavings: Math.round(getMedian(c.savingsList.sort((a, b) => a - b)) * 100) / 100
   }));
 
-  // Bad Results (Baskets where savings were $0, negative, minimal under $1.50, or multi-store was not worthwhile)
+  // Bad Results (Baskets where savings were $0 or negative)
   const badResults = records.filter(r => 
     !r.isWorthwhile || 
-    r.savingsAmount <= 1.50 || 
-    r.resultType === 'ZERO_SAVINGS' || 
-    r.resultType === 'NOT_WORTHWHILE_MINIMAL' ||
-    r.resultType === 'SINGLE_STORE_OPTIMAL'
+    r.savingsAmount <= 0 || 
+    r.resultType === 'ZERO_SAVINGS'
   ).map(r => ({
     id: r.id,
     timestamp: r.timestamp,
@@ -304,10 +328,7 @@ export async function getAnalyticsSummary() {
     savingsPercent: r.savingsPercent,
     storesCount: r.storesCount,
     resultType: r.resultType,
-    reason: r.resultType === 'ZERO_SAVINGS' ? 'Identical price across retailers' :
-            r.resultType === 'SINGLE_STORE_OPTIMAL' ? 'Single store was already lowest overall' :
-            r.savingsAmount <= 1.50 ? `Minimal savings ($${r.savingsAmount}) relative to ${r.storesCount} stores` :
-            'Multi-store drive overhead exceeded savings benefit'
+    reason: 'Identical price across retailers / zero savings generated'
   }));
 
   const totalPlatformSavings = Math.round(sumAmount * 100) / 100;

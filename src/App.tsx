@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './index.css';
 import { BasketBuilder } from './components/BasketBuilder';
 import { OptimizationEngine } from './components/OptimizationEngine';
@@ -57,6 +57,15 @@ function App() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   const [selectedRetailers, setSelectedRetailers] = useState<string[]>(['H-E-B', 'Walmart', 'Target', 'Costco', 'Aldi', 'Whole Foods']);
+
+  useEffect(() => {
+    let sessionId = localStorage.getItem('priceiq_session_id');
+    if (!sessionId) {
+      sessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('priceiq_session_id', sessionId);
+    }
+    fetch(`/api/visit?sessionId=${encodeURIComponent(sessionId)}`).catch(() => {});
+  }, []);
 
   const recordCheckoutSavings = (data: { savingsAmount?: number; total?: number; stops?: number }) => {
     const amount = typeof data.savingsAmount === 'number' ? data.savingsAmount : 0;

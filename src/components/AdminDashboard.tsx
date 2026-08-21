@@ -61,13 +61,22 @@ interface Props {
   onBack: () => void;
 }
 
+interface PostHogStats {
+  configured: boolean;
+  pageviews: number | null;
+  uniqueVisitors: number | null;
+  period?: string;
+  error?: string;
+}
+
 export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
   const [researchData, setResearchData] = useState<ResearchData | null>(null);
+  const [posthogStats, setPosthogStats] = useState<PostHogStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [runningBenchmark, setRunningBenchmark] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'personal' | 'overview' | 'research' | 'bad_results' | 'geo' | 'categories'>('research');
+  const [activeTab, setActiveTab] = useState<'personal' | 'overview' | 'research' | 'bad_results' | 'geo' | 'categories' | 'visitors'>('research');
 
   const personalHistory: Array<{ savingsAmount: number; timestamp: number }> = (() => {
     try {
@@ -95,12 +104,14 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     setLoading(true);
     setError(null);
     try {
-      const [res1, res2] = await Promise.all([
+      const [res1, res2, res3] = await Promise.all([
         fetch('/api/analytics-summary'),
-        fetch('/api/research-summary')
+        fetch('/api/research-summary'),
+        fetch('/api/posthog-stats')
       ]);
       if (res1.ok) setData(await res1.json());
       if (res2.ok) setResearchData(await res2.json());
+      if (res3.ok) setPosthogStats(await res3.json());
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load analytics data.';
       setError(msg);
@@ -233,6 +244,118 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
         >
           📈 Global Benchmark Engine
         </button>
+        <button
+          onClick={() => setActiveTab('visitors')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 600,
+            background: activeTab === 'visitors' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+            color: activeTab === 'visitors' ? '#a855f7' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          👁️ Visitor Insights
+        </button>
+        <button
+          onClick={() => setActiveTab('bad_results')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 600,
+            background: activeTab === 'bad_results' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+            color: activeTab === 'bad_results' ? '#f87171' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          🚨 Telemetry Log ({data.badResults.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('geo')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 600,
+            background: activeTab === 'geo' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+            color: activeTab === 'geo' ? 'var(--secondary)' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          📍 Geographic Differences
+        </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 600,
+            background: activeTab === 'categories' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+            color: activeTab === 'categories' ? 'var(--success)' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          🏷️ Category Differences
+        </button>
+      </div>
+
+      {/* Tab: Visitor Insights (PostHog) */}
+      {activeTab === 'visitors' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+          <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(168,85,247,0.08) 0%, rgba(14,165,233,0.05) 100%)', border: '1px solid rgba(168,85,247,0.25)' }}>
+            <h3 style={{ fontSize: '1.25rem', margin: '0 0 4px' }}>Visitor Insights · Powered by PostHog</h3>
+            <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+              {posthogStats?.period || 'Last 30 days'} · Real-time behavioral tracking
+            </p>
+          </div>
+
+          {!posthogStats?.configured ? (
+            <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', marginBottom: 'var(--spacing-md)' }}>🔧</div>
+              <h3 style={{ marginBottom: 'var(--spacing-sm)' }}>PostHog Not Fully Connected</h3>
+              <p style={{ color: 'var(--text-muted)', maxWidth: '500px', margin: '0 auto var(--spacing-md)' }}>
+                To see visitor data here, add two more environment variables to your Vercel project:
+              </p>
+              <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 'var(--radius-sm)', padding: 'var(--spacing-md)', textAlign: 'left', maxWidth: '450px', margin: '0 auto', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                <div style={{ color: '#a855f7' }}>POSTHOG_PERSONAL_API_KEY</div>
+                <div style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>→ From PostHog: Settings → Personal API Keys</div>
+                <div style={{ color: '#a855f7' }}>POSTHOG_PROJECT_ID</div>
+                <div style={{ color: 'var(--text-muted)' }}>→ From PostHog: Project Settings → Project ID (a number)</div>
+              </div>
+            </div>
+          ) : posthogStats?.error ? (
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', textAlign: 'center', color: 'var(--text-muted)' }}>
+              ⚠️ Could not load PostHog data: {posthogStats.error}
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--spacing-md)' }}>
+              <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Page Views</span>
+                <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#a855f7', marginTop: '4px' }}>
+                  {posthogStats?.pageviews?.toLocaleString() ?? '—'}
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Last 30 days</span>
+              </div>
+              <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Unique Visitors</span>
+                <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#a855f7', marginTop: '4px' }}>
+                  {posthogStats?.uniqueVisitors?.toLocaleString() ?? '—'}
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Daily Active Users (30d total)</span>
+              </div>
+              <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Session Replays</span>
+                <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#a855f7', marginTop: '8px' }}>View on PostHog</div>
+                <a href="https://us.posthog.com" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '0.78rem', color: '#a855f7', textDecoration: 'underline' }}>Open PostHog Dashboard →</a>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tab: Consumer Research Dashboard */}
       {activeTab === 'research' && (
@@ -319,20 +442,6 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
 
         </div>
       )}
-        <button
-          onClick={() => setActiveTab('bad_results')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: 'var(--radius-sm)',
-            fontWeight: 600,
-            background: activeTab === 'bad_results' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-            color: activeTab === 'bad_results' ? '#f87171' : 'var(--text-muted)',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          🚨 Telemetry Log ({data.badResults.length})
-        </button>
 
       {/* Tab: Personal Savings & ROI Dashboard */}
       {activeTab === 'personal' && (
@@ -386,35 +495,6 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
           </div>
         </div>
       )}
-        <button
-          onClick={() => setActiveTab('geo')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: 'var(--radius-sm)',
-            fontWeight: 600,
-            background: activeTab === 'geo' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-            color: activeTab === 'geo' ? 'var(--secondary)' : 'var(--text-muted)',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          📍 Geographic Differences
-        </button>
-        <button
-          onClick={() => setActiveTab('categories')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: 'var(--radius-sm)',
-            fontWeight: 600,
-            background: activeTab === 'categories' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-            color: activeTab === 'categories' ? 'var(--success)' : 'var(--text-muted)',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          🏷️ Category Differences
-        </button>
-      </div>
 
       {/* OVERVIEW TAB */}
       {activeTab === 'overview' && (

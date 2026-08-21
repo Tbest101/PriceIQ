@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses, resetAnalyticsDb } from './db.js';
+import { logOptimizationMetric, getAnalyticsSummary, logSurveyResponse, getSurveyResponses, resetAnalyticsDb, logVisit } from './db.js';
 
 dotenv.config();
 
@@ -148,7 +148,7 @@ app.get(['/api/search', '/search'], async (req, res) => {
 
 // POST /api/optimize   body: { items: [{ name: "Organic Bananas", quantity: 2 }, ...] }
 app.post(['/api/optimize', '/optimize'], async (req, res) => {
-  const { items, location, plannedStore, selectedRetailers, maxStores = 2, maxDistance = 7.0 } = req.body;
+  const { items, location, plannedStore, selectedRetailers, maxStores = 2, maxDistance = 7.0, sessionId } = req.body;
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Missing or empty items array' });
   }
@@ -334,17 +334,17 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
     const travelFrictionDeduction = extraStoresCount * 2.50;
     const netSavings = Math.round((roundSavingsAmount - travelFrictionDeduction) * 100) / 100;
 
-    // Classify result type considering travel overhead net savings
+    // Classify result type
     let resultType = 'IMPROVED';
-    let isWorthwhile = true;
+    let isWorthwhile = roundSavingsAmount > 0;
 
     if (roundSavingsAmount <= 0) {
       resultType = 'ZERO_SAVINGS';
       isWorthwhile = false;
     } else if (storesCount <= 1) {
       resultType = 'SINGLE_STORE_OPTIMAL';
-      isWorthwhile = false;
-    } else if (netSavings <= 0 || roundSavingsAmount < 1.50) {
+      isWorthwhile = true;
+    } else if (roundSavingsAmount < 0.50) {
       resultType = 'NOT_WORTHWHILE_MINIMAL';
       isWorthwhile = false;
     }
@@ -374,6 +374,7 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
       isWorthwhile,
       resultType,
       categories,
+      sessionId,
     }).catch(err => console.error('Failed to log metric:', err.message));
 
     // Add Price Freshness, 3-Layer Actionable Forecast (BUY NOW / WAIT / STOCK UP), and Best Value to each item
@@ -540,6 +541,19 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
   }
 });
 
+// ALL /api/visit - Log user visit immediately on page load
+app.all(['/api/visit', '/visit'], async (req, res) => {
+  try {
+    const sessionId = req.query.sessionId || req.body?.sessionId;
+    const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress;
+    await logVisit(sessionId, ip);
+    res.json({ status: 'ok' });
+  } catch (err) {
+    console.error('❌ Visit log error:', err.message);
+    res.status(500).json({ error: 'Failed to log visit' });
+  }
+});
+
 // GET /api/admin/analytics & /api/analytics-summary - Global analytics summary
 app.get(['/api/admin/analytics', '/admin/analytics', '/api/analytics-summary'], async (req, res) => {
   try {
@@ -550,6 +564,77 @@ app.get(['/api/admin/analytics', '/admin/analytics', '/api/analytics-summary'], 
     res.status(500).json({ error: 'Failed to retrieve analytics', details: err.message });
   }
 });
+
+// GET /api/posthog-stats - Fetch key metrics from PostHog API
+app.get(['/api/posthog-stats'], async (req, res) => {
+  const personalApiKey = process.env.POSTHOG_PERSONAL_API_KEY;
+  const projectId = process.env.POSTHOG_PROJECT_ID;
+  const host = process.env.VITE_POSTHOG_HOST || 'https://us.posthog.com';
+
+  if (!personalApiKey || !projectId) {
+    return res.json({
+      configured: false,
+      pageviews: null,
+      uniqueVisitors: null,
+      sessions: null,
+      topPages: []
+    });
+  }
+
+  try {
+    const headers = {
+      'Authorization': `Bearer ${personalApiKey}`,
+      'Content-Type': 'application/json'
+    };
+
+    // Query pageviews (last 30 days)
+    const insightBody = {
+      query: {
+        kind: 'TrendsQuery',
+        series: [
+          { kind: 'EventsNode', event: '$pageview', math: 'total', name: 'Pageviews' },
+          { kind: 'EventsNode', event: '$pageview', math: 'dau', name: 'Unique Visitors' },
+          { kind: 'EventsNode', event: '$pageview', math: 'weekly_active', name: 'Weekly Active' }
+        ],
+        dateRange: { date_from: '-30d' },
+        interval: 'day'
+      }
+    };
+
+    const insightRes = await fetch(`${host}/api/projects/${projectId}/query/`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(insightBody)
+    });
+
+    if (!insightRes.ok) {
+      throw new Error(`PostHog API returned ${insightRes.status}`);
+    }
+
+    const insightData = await insightRes.json();
+    const results = insightData?.results || [];
+
+    const sumSeries = (idx) => {
+      const series = results[idx];
+      if (!series || !series.data) return 0;
+      return series.data.reduce((a, b) => a + b, 0);
+    };
+
+    const totalPageviews = sumSeries(0);
+    const totalUniqueVisitors = sumSeries(1);
+
+    res.json({
+      configured: true,
+      pageviews: totalPageviews,
+      uniqueVisitors: totalUniqueVisitors,
+      period: 'Last 30 days'
+    });
+  } catch (err) {
+    console.error('❌ PostHog stats error:', err.message);
+    res.json({ configured: true, error: err.message, pageviews: null, uniqueVisitors: null });
+  }
+});
+
 
 // POST /api/survey/submit
 app.post(['/api/survey/submit', '/survey/submit'], async (req, res) => {
@@ -632,34 +717,64 @@ app.get(['/api/admin/research', '/admin/research', '/api/research-summary'], asy
 app.get(['/api/admin/research/export-csv', '/admin/research/export-csv', '/api/research-export-csv'], async (req, res) => {
   try {
     const responses = await getSurveyResponses();
+    const sampleSize = responses.length;
+
+    // Determine date range safely
+    let dateRangeStr = 'N/A';
+    if (sampleSize > 0) {
+      const timestamps = responses.map(r => new Date(r.timestamp).getTime()).filter(t => !isNaN(t)).sort((a, b) => a - b);
+      if (timestamps.length > 0) {
+        const startStr = new Date(timestamps[0]).toISOString().split('T')[0];
+        const endStr = new Date(timestamps[timestamps.length - 1]).toISOString().split('T')[0];
+        dateRangeStr = startStr === endStr ? startStr : `${startStr} to ${endStr}`;
+      }
+    }
+
+    // Metadata header comments (self-documenting dataset scope & anonymization compliance)
+    const metaHeaders = [
+      `# PriceIQ Consumer Economics Exploratory Pilot Dataset`,
+      `# Sample Size: n=${sampleSize}`,
+      `# Date Range: ${dateRangeStr}`,
+      `# Scope Disclaimer: Exploratory pilot structure prepared for expanded data collection. Sample size reflects initial testing cohort.`,
+      `# Anonymization & Privacy: Fully anonymized. Zero PII, names, emails, device IDs, or IP addresses collected or exported.`,
+      `#`
+    ];
+
     const headers = [
       'AnonymousUserID', 'Timestamp', 'City', 'BasketTotal', 'OptimizedTotal', 
       'SavingsAmount', 'SavingsPercent', 'StoresCount', 'ExtraMiles', 
-      'UseLikelihood', 'TwoStoresLikelihood', 'MinSavingsRequired', 'EaseRating', 
+      'UseLikelihood', 'TwoStoresLikelihood', 'MinSavingsRequired', 'MinSavingsRequiredNumeric', 'EaseRating', 
       'BenefitsValued', 'Concerns', 'ReuseLikelihood', 'OpenFeedback'
     ];
+
+    const parseMinSavingsNumeric = (str) => {
+      if (!str) return 0;
+      const match = String(str).match(/\d+/);
+      return match ? parseInt(match[0], 10) : 0;
+    };
 
     const rows = responses.map(r => [
       `"${r.anonymousUserId || ''}"`,
       `"${r.timestamp || ''}"`,
       `"${r.city || ''}"`,
-      r.basketTotal || 0,
-      r.optimizedTotal || 0,
-      r.savingsAmount || 0,
-      r.savingsPercent || 0,
-      r.storesCount || 1,
-      r.extraMiles || 0,
+      Number(r.basketTotal) || 0,
+      Number(r.optimizedTotal) || 0,
+      Number(r.savingsAmount) || 0,
+      Number(r.savingsPercent) || 0,
+      Number(r.storesCount) || 1,
+      Number(r.extraMiles) || 0,
       `"${r.useLikelihood || ''}"`,
       `"${r.twoStoresLikelihood || ''}"`,
       `"${r.minSavingsRequired || ''}"`,
-      r.easeRating || 0,
+      parseMinSavingsNumeric(r.minSavingsRequired),
+      Number(r.easeRating) || 0,
       `"${Array.isArray(r.benefitsValued) ? r.benefitsValued.join('; ') : ''}"`,
       `"${Array.isArray(r.concerns) ? r.concerns.join('; ') : ''}"`,
       `"${r.reuseLikelihood || ''}"`,
       `"${(r.openFeedback || '').replace(/"/g, '""')}"`
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+    const csvContent = [...metaHeaders, headers.join(','), ...rows.map(row => row.join(','))].join('\n');
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=priceiq_research_dataset.csv');
     res.status(200).send(csvContent);

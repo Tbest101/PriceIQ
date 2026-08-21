@@ -368,6 +368,12 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
           quantity: b.quantity || 1
         };
       });
+      let sessionId = localStorage.getItem('priceiq_session_id');
+      if (!sessionId) {
+        sessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('priceiq_session_id', sessionId);
+      }
+
       const response = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -377,7 +383,8 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
           plannedStore,
           selectedRetailers: retailerList,
           maxStores: curStores,
-          maxDistance: curDist
+          maxDistance: curDist,
+          sessionId
         }),
       });
       if (!response.ok) {
