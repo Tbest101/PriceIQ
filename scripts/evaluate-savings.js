@@ -1,5 +1,5 @@
 // scripts/evaluate-savings.js
-// Evaluation & Benchmark tool for Less4More
+// Evaluation & Benchmark tool for PriceIQ
 // Run with: node scripts/evaluate-savings.js
 
 import fs from 'fs';
@@ -261,12 +261,14 @@ async function runEvaluation() {
   console.log('\n======================================================\n');
 
   // Save reports to file
-  const reportPathMd = path.join(process.cwd(), 'analytics_report.md');
+  const reportPathMd = path.join(process.cwd(), 'BENCHMARK_TEST_REPORT.md');
   const reportPathJson = path.join(process.cwd(), 'analytics_report.json');
 
   fs.writeFileSync(reportPathJson, JSON.stringify(stats, null, 2), 'utf8');
 
-  const markdownContent = `# Less4More Analytics & Benchmark Evaluation Report
+  const markdownContent = `# PriceIQ Algorithmic Quality Assurance & Benchmark Test Report
+
+> **DISCLAIMER**: This report reflects synthetic test baskets run against the optimization engine for algorithmic QA across sample ZIP codes. It does not represent live user activity.
 
 Generated: ${new Date().toISOString()}
 

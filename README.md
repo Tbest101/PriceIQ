@@ -23,8 +23,9 @@ PriceIQ is a web-based grocery basket optimization and consumer analytics platfo
 ---
 
 ## Documentation Links
-- **[ARCHITECTURE.md](file:///Users/petertobi/Documents/Projects/Less4More/ARCHITECTURE.md)**: Full technical specification, component architecture, and end-to-end data flow.
-- **[PROVENANCE.md](file:///Users/petertobi/Documents/Projects/Less4More/PROVENANCE.md)**: Objective, uncurated Git development log and commit provenance.
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Full technical specification, component architecture, and end-to-end data flow.
+- **[PROVENANCE.md](PROVENANCE.md)**: Objective, uncurated Git development log and commit provenance.
+- **[BENCHMARK_TEST_REPORT.md](BENCHMARK_TEST_REPORT.md)**: Algorithmic quality assurance & synthetic test basket evaluation report.
 
 ---
 

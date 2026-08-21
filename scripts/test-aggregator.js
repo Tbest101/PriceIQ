@@ -81,7 +81,7 @@ async function runSandbox() {
   console.dir(results.slice(0, 3), { depth: null }); // Show top 3 results
   
   if (results.length > 0) {
-      console.log(`\n💡 Data Integration Concept for Less4More:`);
+      console.log(`\n💡 Data Integration Concept for PriceIQ:`);
       console.log(`Our OptimizationEngine would receive this JSON and instantly map:`);
       results.slice(0, 3).forEach(item => {
           console.log(` - ${item.source}: ${item.price}`);
