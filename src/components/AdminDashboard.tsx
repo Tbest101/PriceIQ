@@ -519,65 +519,73 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '16px', width: '100%' }}>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unique Active Users</span>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--secondary)' }}>{data.uniqueUserCount ?? 0}</div>
+              <div style={{ textAlign: 'center', flex: 1, minWidth: '120px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', minHeight: '2.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Unique Active Users</span>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-main)' }}>{data.uniqueUserCount ?? 0}</div>
               </div>
               <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>This Month All-User Saved</span>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--success)' }}>${(data.thisMonthPlatformSavings ?? 0).toFixed(2)}</div>
+              <div style={{ textAlign: 'center', flex: 1, minWidth: '130px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', minHeight: '2.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>This Month Saved</span>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary)' }}>${(data.thisMonthPlatformSavings ?? 0).toFixed(2)}</div>
               </div>
               <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total All-User Savings</span>
+              <div style={{ textAlign: 'center', flex: 1, minWidth: '130px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', minHeight: '2.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Total All-User Savings</span>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary)' }}>${(data.totalPlatformSavings ?? 0).toFixed(2)}</div>
               </div>
               <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg Savings Per Trip</span>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#38bdf8' }}>${(data.averageSavingsAmount ?? 0).toFixed(2)}</div>
+              <div style={{ textAlign: 'center', flex: 1, minWidth: '130px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', minHeight: '2.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Avg Savings Per Trip</span>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary)' }}>${(data.averageSavingsAmount ?? 0).toFixed(2)}</div>
               </div>
               <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }}></div>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Projected Annual Community</span>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fbbf24' }}>${Math.round((data.averageSavingsAmount ?? 0) * 52 * (data.totalBaskets || 1)).toLocaleString()}/yr</div>
+              <div style={{ textAlign: 'center', flex: 1, minWidth: '140px' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', minHeight: '2.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Projected Annual Community</span>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-main)' }}>${Math.round((data.averageSavingsAmount ?? 0) * 52 * (data.totalBaskets || 1)).toLocaleString()}/yr</div>
               </div>
             </div>
           </div>
 
           {/* Main Key Indicators Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--spacing-md)' }}>
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Average Potential Savings</div>
-              <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--success)' }}>${data.averageSavingsAmount}</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>{data.averageSavingsPercent}% avg total reduction</div>
-            </div>
-
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Median Potential Savings</div>
-              <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary)' }}>${data.medianSavingsAmount}</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>{data.medianSavingsPercent}% median reduction</div>
-            </div>
-
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Savings Range</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                ${data.rangeSavingsAmount.min} ➔ ${data.rangeSavingsAmount.max}
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Average Potential Savings</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', margin: '4px 0 8px' }}>${data.averageSavingsAmount}</div>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{data.averageSavingsPercent}% avg total reduction</span>
+            </div>
+
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Median Potential Savings</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', margin: '4px 0 8px' }}>${data.medianSavingsAmount}</div>
+              </div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{data.medianSavingsPercent}% median reduction</span>
+            </div>
+
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Savings Range</span>
+                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)', margin: '4px 0 8px' }}>
+                  ${data.rangeSavingsAmount.min} ➔ ${data.rangeSavingsAmount.max}
+                </div>
+              </div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                 {data.rangeSavingsPercent.min}% to {data.rangeSavingsPercent.max}% range
-              </div>
+              </span>
             </div>
 
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Multi-Store Value Worthwhile</div>
-              <div style={{ fontSize: '2rem', fontWeight: 700, color: data.improvedPercentage > 50 ? 'var(--success)' : '#f87171' }}>
-                {data.improvedPercentage}%
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Multi-Store Value Worthwhile</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', margin: '4px 0 8px' }}>
+                  {data.improvedPercentage}%
+                </div>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                 {data.improvedCount} improved / {data.notWorthwhileCount} not worthwhile
-              </div>
+              </span>
             </div>
           </div>
 
