@@ -379,7 +379,7 @@ app.post(['/api/optimize', '/optimize'], async (req, res) => {
 
     // Add Price Freshness, 3-Layer Actionable Forecast (BUY NOW / WAIT / STOCK UP), and Best Value to each item
     optimalBreakdown.forEach((optItem, index) => {
-      optItem.priceFreshness = `Updated ${(index * 7 + 4) % 25 + 5}m ago • In Stock • ${loc || 'Austin, TX 78753'}`;
+      optItem.priceFreshness = `Updated ${(index * 7 + 4) % 25 + 5}m ago • In Stock • ${loc || 'ZIP Code 78701'}`;
       optItem.inStock = true;
       optItem.isBestValue = true;
 

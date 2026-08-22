@@ -179,7 +179,7 @@ function App() {
             
             {/* Shopping Location Badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: '6px 16px', borderRadius: 'var(--radius-full)', fontSize: '0.88rem', color: 'var(--text-main)' }}>
-              <span>📍 Shopping near: <strong style={{ color: 'var(--primary)' }}>78753 (Austin, TX)</strong></span>
+              <span>📍 Location: <strong style={{ color: 'var(--primary)' }}>{location || 'Enter ZIP Code (e.g. 78701)'}</strong></span>
               <span style={{ color: 'var(--text-muted)' }}>• Stores within 5 miles</span>
               <button 
                 onClick={(e) => { e.stopPropagation(); setView('basket'); }}

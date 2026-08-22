@@ -178,7 +178,7 @@ export const BasketBuilder: React.FC<Props> = ({ onOptimize }) => {
             <span style={{ color: 'var(--text-muted)', paddingLeft: '8px' }}>📍</span>
             <input 
               type="text" 
-              placeholder="Zip Code or City (e.g. 78701)" 
+              placeholder="ZIP Code (e.g. 78701)" 
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               style={{ flex: 1, padding: 'var(--spacing-sm)', background: 'transparent', color: 'var(--text-main)', outline: 'none', border: 'none', fontSize: '0.9rem', width: '100%' }}

@@ -480,7 +480,7 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            📍 Location: <strong style={{ color: 'var(--text-main)' }}>{location || '78753 (Austin, TX)'}</strong>
+            📍 Location: <strong style={{ color: 'var(--text-main)' }}>{location || 'ZIP Code (e.g. 78701)'}</strong>
           </span>
           <button 
             className="glass-panel"
@@ -668,7 +668,7 @@ export const OptimizationEngine: React.FC<Props> = ({ basket, location, plannedS
                                   <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                                     <span style={{ color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.9rem', fontWeight: 600 }}>{item.quantity}x {item.name}</span>
                                     <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                                      {item.priceFreshness || `Updated 18m ago • In Stock • ${location || 'Austin, TX 78753'}`}
+                                      {item.priceFreshness || `Updated 18m ago • In Stock • ${location || 'ZIP Code 78701'}`}
                                     </span>
                                   </div>
                                 </div>
