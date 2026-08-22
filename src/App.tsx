@@ -236,8 +236,8 @@ function App() {
                 onMouseOver={e=>e.currentTarget.style.borderColor='var(--primary)'}
                 onMouseOut={e=>e.currentTarget.style.borderColor='var(--surface-border)'}
               >
-                <span style={{ fontSize: '1.2rem' }}>↻</span>
-                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Repeat Last Basket</span>
+                <span style={{ fontSize: '1.2rem' }}>{savingsHistory.length > 0 || localStorage.getItem('priceiq_last_basket') ? '↻' : '⚡'}</span>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{savingsHistory.length > 0 || localStorage.getItem('priceiq_last_basket') ? 'Repeat Last Basket' : 'Try Sample Basket'}</span>
               </div>
             </div>
 
