@@ -381,36 +381,44 @@ export const AdminDashboard: React.FC<Props> = ({ onBack }) => {
 
           {/* Research Summary Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--spacing-md)' }}>
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Participants / Responses</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
-                {researchData?.totalResponses ?? 0}
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Total Participants / Responses</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-main)', margin: '4px 0 8px' }}>
+                  {researchData?.totalResponses ?? 0}
+                </div>
               </div>
               <span style={{ fontSize: '0.78rem', color: (researchData?.totalResponses ?? 0) > 0 ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600 }}>
                 {(researchData?.totalResponses ?? 0) > 0 ? 'Active Pilot Study' : 'No Responses Yet'}
               </span>
             </div>
 
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Recommendation Acceptance Rate</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>
-                {researchData?.recommendationAcceptanceRate ?? 0}%
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Recommendation Acceptance Rate</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-main)', margin: '4px 0 8px' }}>
+                  {researchData?.recommendationAcceptanceRate ?? 0}%
+                </div>
               </div>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Users Likely or Very Likely to use</span>
             </div>
 
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Average Savings</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
-                ${(researchData?.avgSavingsAmount ?? 0).toFixed(2)} <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>({(researchData?.avgSavingsPercent ?? 0).toFixed(1)}%)</span>
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Average Savings</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', margin: '4px 0 8px' }}>
+                  ${(researchData?.avgSavingsAmount ?? 0).toFixed(2)} <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>({(researchData?.avgSavingsPercent ?? 0).toFixed(1)}%)</span>
+                </div>
               </div>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Avg Basket: ${(researchData?.avgBasketTotal ?? 0).toFixed(2)}</span>
             </div>
 
-            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Min Savings Needed per Extra Store</span>
-              <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
-                ${(researchData?.avgMinSavingsNeeded ?? 0).toFixed(2)}
+            <div className="glass-panel" style={{ padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', minHeight: '2.5rem', display: 'flex', alignItems: 'flex-start' }}>Min Savings Needed per Extra Store</span>
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-main)', margin: '4px 0 8px' }}>
+                  ${(researchData?.avgMinSavingsNeeded ?? 0).toFixed(2)}
+                </div>
               </div>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Threshold before multi-store trip</span>
             </div>
